@@ -103,10 +103,11 @@ def main():
                 facecolor="white", pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
 
-    # Operating-point metrics for both scores
+    # Operating-point metrics for all three scores
     rows = []
     for label, score, cutoffs in [
         ("Model 1 (full, 8 pts)", sc["score_m1"].values, [3, 4, 5, 6]),
+        ("Model 3 (6 pts)",        sc["score_m3"].values, [3, 4, 5]),
         ("Model 2 (simple, 5 pts)", sc["score_m2"].values, [2, 3, 4]),
     ]:
         for cut in cutoffs:

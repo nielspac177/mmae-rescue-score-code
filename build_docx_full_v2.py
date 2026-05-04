@@ -313,15 +313,19 @@ def main():
 
     add_h(doc, "Score construction", level=2)
     add_p(doc,
-        "Two integer scores were built. Model 1 (range 0–8) gives 0, 1, or 2 points for age <65, 65–80, "
-        "and >80 years, plus 1 point each for SDH volume ≥100 mL, anticoagulation, absence of focal deficit "
-        "at presentation, platelets <150 ×10⁹/L, antiplatelet therapy, and embolization of both anterior "
-        "and posterior branches. Model 2 (range 0–5) keeps the same age categories with 1 point each for "
-        "volume ≥100 mL, anticoagulation, and absence of focal deficit. Volume and platelet thresholds were "
-        "taken from prior MMA series.²,³ Age categories were chosen to track frailty cliffs that are "
+        "Three integer scores were derived on the same n = 214 cohort. Model 1 (range 0–8) gives 0, 1, "
+        "or 2 points for age <65, 65–80, and >80 years, plus 1 point each for SDH volume ≥100 mL, "
+        "anticoagulation, absence of focal deficit at presentation, platelets <150 ×10⁹/L, antiplatelet "
+        "therapy, and embolization of both anterior and posterior branches. Model 3 (range 0–6) was "
+        "developed in parallel by a co-author and uses five variables — age stratified at <65 / 65–85 / "
+        ">85 (0/1/2 points), SDH volume ≥100 mL, platelets <150 ×10⁹/L, antiplatelet therapy, and "
+        "absence of focal deficit — omitting anticoagulation and the procedural anterior+posterior "
+        "variable, with an age cutoff at >85 instead of >80. Model 2 (range 0–5) keeps the Model 1 age "
+        "categories with 1 point each for volume ≥100 mL, anticoagulation, and absence of focal deficit. "
+        "Volume and platelet thresholds match prior MMA series;²,³ age categories track frailty cliffs "
         "clinically apparent in this population.")
-    add_image(doc, V2 / "fig0_score_components.png", 6.5)
-    add_caption(doc, "Figure 1. Point definitions for Model 1 (full, 8-point) and Model 2 (simple, 5-point) scores.")
+    add_image(doc, V2 / "fig0_score_components.png", 6.7)
+    add_caption(doc, "Figure 1. Point definitions for the three integer scoring models.")
 
     add_h(doc, "Missing data", level=2)
     add_p(doc,
@@ -372,6 +376,18 @@ def main():
     add_table(doc, fmt_or(uni), col_widths=[2.6, 0.8, 1.5, 1.0])
 
     add_h(doc, "Score performance", level=2)
+    m3_co_all = pd.read_csv(V2 / "m3_logit_coefs.csv")
+    m3_co_n = m3_co_all[m3_co_all["variable"] != "const"].copy()
+    m3_label_map = {
+        "age_pts_socr": "Age (per category, <65/65–85/>85)",
+        "sdh_vol_ge100": "SDH volume ≥100 mL",
+        "plt_lt150": "Platelets <150 ×10⁹/L",
+        "antiplatelet": "Antiplatelet therapy",
+        "no_focal_deficit": "Absence of focal deficit",
+    }
+    m3_co_n["variable"] = m3_co_n["variable"].map(m3_label_map)
+    m3_tab = pd.read_csv(V2 / "m3_risk_by_score.csv")
+
     perf = pd.DataFrame([
         {"Model": "Model 1 (full, 8 pts)",
          "Score AUC apparent": f"{s['m1_score_auc']['apparent']:.3f}",
@@ -380,6 +396,13 @@ def main():
          "Logit AUC corrected": f"{s['m1_logit']['corrected']:.3f}",
          "Brier": f"{s['m1_logit']['brier']:.3f}",
          "HL P": f"{s['m1_hl']['p']:.2f}"},
+        {"Model": "Model 3 (6 pts)",
+         "Score AUC apparent": f"{s['m3_score_auc']['apparent']:.3f}",
+         "Score AUC corrected": f"{s['m3_score_auc']['corrected']:.3f}",
+         "Logit AUC apparent": f"{s['m3_logit']['apparent']:.3f}",
+         "Logit AUC corrected": f"{s['m3_logit']['corrected']:.3f}",
+         "Brier": f"{s['m3_logit']['brier']:.3f}",
+         "HL P": "—"},
         {"Model": "Model 2 (simple, 5 pts)",
          "Score AUC apparent": f"{s['m2_score_auc']['apparent']:.3f}",
          "Score AUC corrected": f"{s['m2_score_auc']['corrected']:.3f}",
@@ -388,56 +411,63 @@ def main():
          "Brier": f"{s['m2_logit']['brier']:.3f}",
          "HL P": f"{s['m2_hl']['p']:.2f}"},
     ])
-    add_h(doc, "Table 3. Discrimination and calibration.", level=3)
+    add_h(doc, "Table 3. Discrimination and calibration — three integer scores.", level=3)
     add_table(doc, perf, col_widths=[1.7, 0.95, 1.0, 0.95, 1.0, 0.65, 0.6])
     add_p(doc,
-        "Model 1 produced an apparent AUC of 0.734 (corrected 0.732). Model 2 came in at 0.683 (corrected "
-        "0.681) — about 5 AUC points lower (Figure 4). Fitting a logistic regression on the underlying "
-        "components instead of the integer score moved the apparent AUCs to 0.752 (corrected 0.703) for "
-        "Model 1 and 0.710 (corrected 0.679) for Model 2; the optimism correction is larger for the "
-        "unrestricted regression, as expected. Brier scores were 0.120 (Model 1) and 0.128 (Model 2). "
-        "Calibration was acceptable on both models, with non-significant Hosmer–Lemeshow tests "
-        f"(P = {s['m1_hl']['p']:.2f} and {s['m2_hl']['p']:.2f}; Figure 5).")
+        "Model 1 produced an apparent AUC of 0.734 (optimism-corrected 0.732). Model 3 came in at 0.726 "
+        "(0.724) and Model 2 at 0.683 (0.681) — Model 1 and Model 3 are statistically indistinguishable, "
+        "and Model 2 sits about 5 AUC points lower (Figure 4). Fitting a logistic regression on the "
+        "underlying components instead of the integer score moved the apparent AUCs to 0.752 (corrected "
+        "0.703) for Model 1, 0.746 (0.713) for Model 3, and 0.710 (0.679) for Model 2. Brier scores were "
+        "0.120 / 0.120 / 0.128. Calibration was acceptable across the board, with non-significant "
+        f"Hosmer–Lemeshow tests for Model 1 (P = {s['m1_hl']['p']:.2f}) and Model 2 "
+        f"(P = {s['m2_hl']['p']:.2f}; Figure 5).")
     add_image(doc, V2 / "fig1_roc.png", 5.0)
-    add_caption(doc, "Figure 4. Receiver operating characteristic curves for Models 1 and 2.")
+    add_caption(doc, "Figure 4. Receiver operating characteristic curves for the three integer scoring models.")
     add_image(doc, V2 / "fig3_calibration.png", 5.0)
     add_caption(doc, "Figure 5. Calibration plots — predicted probability vs. observed proportion.")
 
     add_h(doc, "Multivariable logistic regression", level=2)
     add_h(doc, "Table 4. Multivariable logistic regression — Model 1.", level=3)
     add_table(doc, fmt_or(m1_co_n), col_widths=[2.8, 0.8, 1.5, 1.0])
-    add_h(doc, "Table 5. Multivariable logistic regression — Model 2.", level=3)
+    add_h(doc, "Table 5. Multivariable logistic regression — Model 3.", level=3)
+    add_table(doc, fmt_or(m3_co_n), col_widths=[2.8, 0.8, 1.5, 1.0])
+    add_h(doc, "Table 6. Multivariable logistic regression — Model 2.", level=3)
     add_table(doc, fmt_or(m2_co_n), col_widths=[2.8, 0.8, 1.5, 1.0])
 
     add_h(doc, "Risk stratification by total score", level=2)
     add_p(doc,
-        "Rescue rates climbed stepwise with the full score: 0–9% across scores 0–3, then 11.9% at score 4, "
-        "42.1% at 5, 37.5% at 6, and 66.7% at 7 (Figures 6 and 7). The break sits cleanly between 4 and 5. "
-        "Dichotomizing at ≥5 produced a low-risk arm of 165 patients with a 9.1% rescue rate (15/165) and "
-        "a high-risk arm of 49 patients with a 42.9% rate (21/49) — a 4.7-fold difference (Figure 8). "
-        "The simplified score showed the same direction but a tighter range (2.9% at score 1 to 66.7% at "
-        "5), with more overlap between adjacent strata. Dichotomizing at ≥4 split 184 patients at 13.6% "
-        "rescue from 30 patients at 36.7%.")
-    add_image(doc, V2 / "fig2_score_risk.png", 6.5)
-    add_caption(doc, "Figure 6. Observed rescue rate by total score (Wilson 95% CI whiskers; n labels above each bar).")
-    add_h(doc, "Table 6. Score → rescue rate (Model 1, full).", level=3)
+        "Rescue rates climbed stepwise with the full Model 1 score, from 0–9% across scores 0–3 to 11.9% "
+        "at score 4, 42.1% at 5, 37.5% at 6, and 66.7% at 7 (Figures 6 and 7). The break sat cleanly "
+        "between 4 and 5. Dichotomizing at ≥5 produced a low-risk arm of 165 patients with a 9.1% rescue "
+        "rate (15/165) and a high-risk arm of 49 patients with a 42.9% rate (21/49) — a 4.7-fold "
+        "difference (Figure 8). Model 3 showed the same pattern with the break between 3 and 4: 6–11% at "
+        "scores 0–3, jumping to 47.1% at 4 and 36.4% at 5; dichotomizing at ≥4 separated 168 patients at "
+        "8.9% rescue from 46 patients at 45.7%. Model 2 showed the same direction with a tighter range "
+        "(2.9% at score 1 to 66.7% at 5).")
+    add_image(doc, V2 / "fig2_score_risk.png", 6.7)
+    add_caption(doc, "Figure 6. Observed rescue rate by total score for all three models (Wilson 95% CI whiskers).")
+    add_h(doc, "Table 7. Score → rescue rate (Model 1, full).", level=3)
     add_table(doc, fmt_score_tab(m1_tab), col_widths=[0.7, 0.7, 1.0, 1.0, 1.6])
-    add_h(doc, "Table 7. Score → rescue rate (Model 2, simple).", level=3)
+    add_h(doc, "Table 8. Score → rescue rate (Model 3).", level=3)
+    add_table(doc, fmt_score_tab(m3_tab), col_widths=[0.7, 0.7, 1.0, 1.0, 1.6])
+    add_h(doc, "Table 9. Score → rescue rate (Model 2, simple).", level=3)
     add_table(doc, fmt_score_tab(m2_tab), col_widths=[0.7, 0.7, 1.0, 1.0, 1.6])
-    add_image(doc, V2 / "fig5_score_tables.png", 6.5)
-    add_caption(doc, "Figure 7. Parallel score-to-rescue-rate tables.")
-    add_image(doc, V2 / "fig6_decision_threshold.png", 6.5)
-    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥5; Model 2 ≥4).")
+    add_image(doc, V2 / "fig5_score_tables.png", 6.7)
+    add_caption(doc, "Figure 7. Parallel score-to-rescue-rate tables for the three models.")
+    add_image(doc, V2 / "fig6_decision_threshold.png", 6.7)
+    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥5, Model 3 ≥4, Model 2 ≥4).")
 
     # ---- Operating-point metrics ----
     add_h(doc, "Operating-point metrics", level=2)
     add_p(doc,
         "At the recommended cutoff of ≥5 on Model 1, sensitivity for rescue surgery was 58.3% "
-        "(95% CI 42.2–72.9) and specificity was 84.3% (78.2–88.9). Positive predictive value was "
-        "42.9% (30.0–56.7) and negative predictive value 90.9% (85.5–94.4). At the corresponding "
-        "Model 2 cutoff of ≥4, sensitivity was 30.6% (18.0–46.9) with specificity 89.3% (83.9–93.1). "
-        "The full table for cutoffs ≥3 to ≥6 (Model 1) and ≥2 to ≥4 (Model 2) is provided in the "
-        "supplementary file.")
+        "(95% CI 42.2–72.9), specificity 84.3% (78.2–88.9), PPV 42.9% (30.0–56.7), and NPV 90.9% "
+        "(85.5–94.4). Model 3 at its Youden-optimal cutoff of ≥4 produced an essentially identical "
+        "operating point: sensitivity 58.3% (42.2–72.9), specificity 84.3% (78.2–88.9), PPV 42.9% "
+        "(30.0–56.7), NPV 90.9% (85.5–94.4). At the Model 2 cutoff of ≥4, sensitivity was 30.6% "
+        "(18.0–46.9) with specificity 89.3% (83.9–93.1). Full operating-point tables across cutoffs "
+        "≥3 to ≥6 (Model 1), ≥3 to ≥5 (Model 3), and ≥2 to ≥4 (Model 2) are in the supplement.")
 
     # ---- ML comparison ----
     add_h(doc, "Machine-learning comparison", level=2)
@@ -446,7 +476,7 @@ def main():
         "predictors: regularized logistic regression, elastic-net logistic regression, random forest, "
         "gradient boosting, and XGBoost. Each model was evaluated by 5×10 stratified repeated "
         "cross-validation; AUC point estimates and 1000-bootstrap 95% confidence intervals are shown "
-        "in Table 8 and Figures 9–10. None of the flexible models exceeded the integer-score AUC of "
+        "in Table 10 and Figures 9–10. None of the flexible models exceeded the integer-score AUC of "
         "0.734 at this event count of 36; random forest, gradient boosting, and XGBoost all landed "
         "around 0.63 and the regularized logistic models near 0.69. This is the well-recognized "
         "consequence of an event-per-variable ratio in the single digits²⁹ — flexibility costs more "
@@ -458,7 +488,7 @@ def main():
     ml_f["AUC (apparent)"] = ml["apparent"].map(lambda x: f"{x:.3f}")
     ml_f["95% CI (bootstrap)"] = ml.apply(
         lambda r: f"{r['ci_lo']:.3f}–{r['ci_hi']:.3f}", axis=1)
-    add_h(doc, "Table 8. ML comparison — discrimination.", level=3)
+    add_h(doc, "Table 10. ML comparison — discrimination.", level=3)
     add_table(doc, ml_f, col_widths=[2.6, 1.4, 1.8])
     add_image(doc, V2 / "fig7_ml_roc.png", 5.2)
     add_caption(doc, "Figure 9. ROC curves comparing the integer score with four ML models.")
@@ -591,9 +621,14 @@ def main():
     add_p(doc, "[To be completed.]", italic=True, size=10)
     add_h(doc, "Data and code availability", level=3)
     add_p(doc,
-        "Per-patient scored cohort, integer score definitions, and analysis scripts are available with "
-        "this manuscript and as supplementary files. Raw clinical data are available from the "
-        "corresponding author upon reasonable request, subject to institutional data-sharing policies.",
+        "An interactive web calculator with live risk stratification, the printable bedside card, the "
+        "manuscript, and all supplementary materials are hosted at "
+        "https://nielspac177.github.io/mmae-rescue-score/ . The complete reproducible analysis code "
+        "(Python; statsmodels and scikit-learn) is available at "
+        "https://github.com/nielspac177/mmae-rescue-score-code . The per-patient scored cohort with "
+        "de-identified feature vectors is included in the code repository. Raw clinical data are "
+        "available from the corresponding author upon reasonable request, subject to institutional "
+        "data-sharing policies.",
         size=10)
     add_h(doc, "TRIPOD statement", level=3)
     add_p(doc,

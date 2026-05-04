@@ -175,6 +175,14 @@ def main():
                 title="Table 4. Model 2 (simple, 5 pts) — observed rescue rate by total score",
                 col_widths=[10, 10, 12, 14, 18, 18], header_fill=GOLD)
 
+    # Sheet 4b — M3 risk by score
+    if (V2 / "m3_risk_by_score.csv").exists():
+        m3_tab = pd.read_csv(V2 / "m3_risk_by_score.csv")
+        ws = wb.create_sheet("M3_RiskByScore")
+        style_sheet(ws, fmt_score_tab(m3_tab),
+                    title="Table 4b. Model 3 (6 pts) — observed rescue rate by total score",
+                    col_widths=[10, 10, 12, 14, 18, 18], header_fill="6A6599")
+
     # Sheet 5 — Univariate ORs
     ws = wb.create_sheet("UnivariateORs")
     style_sheet(ws, fmt_or_tab(uni),
@@ -192,6 +200,23 @@ def main():
     style_sheet(ws, fmt_or_tab(m2_co_n),
                 title="Table 7. Multivariable logistic regression — Model 2 (simple)",
                 col_widths=[34, 12, 16, 16, 14], header_fill=GOLD)
+
+    # Sheet 7b — M3 multivariable
+    if (V2 / "m3_logit_coefs.csv").exists():
+        m3_co = pd.read_csv(V2 / "m3_logit_coefs.csv")
+        m3_co_n = m3_co[m3_co["variable"] != "const"].copy()
+        m3_label_map = {
+            "age_pts_socr": "Age (per category, <65/65–85/>85)",
+            "sdh_vol_ge100": "SDH volume ≥100 mL",
+            "plt_lt150": "Platelets <150 ×10⁹/L",
+            "antiplatelet": "Antiplatelet therapy",
+            "no_focal_deficit": "Absence of focal deficit",
+        }
+        m3_co_n["variable"] = m3_co_n["variable"].map(m3_label_map)
+        ws = wb.create_sheet("M3_MultivariableOR")
+        style_sheet(ws, fmt_or_tab(m3_co_n),
+                    title="Table 7b. Multivariable logistic regression — Model 3",
+                    col_widths=[34, 12, 16, 16, 14], header_fill="6A6599")
 
     # Sheet 8 — Model metrics
     ws = wb.create_sheet("ModelMetrics")
