@@ -12,7 +12,8 @@ TIFF = V2 / "tiff"
 TIFF.mkdir(exist_ok=True, parents=True)
 
 C = dict(blue="#374E55", gold="#DF8F44", teal="#00A1D5", red="#B24745",
-         green="#79AF97", grey="#80796B", lt="#EFE9DB", pale="#F5F2EA")
+         green="#79AF97", grey="#80796B", lt="#EFE9DB", pale="#F5F2EA",
+         purple="#6A6599")
 
 mpl.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -59,7 +60,7 @@ def main():
             "Pre-procedural risk score for rescue surgery after MMA embolization for cSDH",
             ha="center", va="top", fontsize=15, fontweight="bold", color=C["blue"])
     ax.text(8.0, 8.95,
-            "Single-center retrospective cohort  ·  two integer scoring models  ·  internal validation",
+            "Single-center retrospective cohort  ·  three integer scoring models  ·  internal validation",
             ha="center", va="top", fontsize=11, color="#555", style="italic")
 
     # ---- Lane headers ----
@@ -126,21 +127,25 @@ def main():
     ax.text(LANE_C2, 7.65, "Total points → predicted probability of rescue",
             ha="center", fontsize=10, color="#444", style="italic")
 
-    box(ax, LANE_C2, 7.00, 4.85, 0.75,
+    box(ax, LANE_C2, 7.20, 4.85, 0.65,
         "Model 1 — Full   (max 8 pts)\nall 7 predictors above",
-        C["blue"], font_size=11)
-    box(ax, LANE_C2, 6.05, 4.85, 0.75,
-        "Model 2 — Simple   (max 5 pts)\nage, volume, anticoag., focal deficit",
-        C["gold"], font_size=11)
-    arrow(ax, LANE_C2, 6.62, LANE_C2, 6.43, color="#888")
+        C["blue"], font_size=10.5)
+    box(ax, LANE_C2, 6.40, 4.85, 0.65,
+        "Model 3   (max 6 pts)\nage (>85), vol., plt, antiplatelet, deficit",
+        C["purple"], font_size=10.5)
+    box(ax, LANE_C2, 5.60, 4.85, 0.65,
+        "Model 2 — Simple   (max 5 pts)\nage, volume, anticoag., deficit",
+        C["gold"], font_size=10.5)
+    arrow(ax, LANE_C2, 6.85, LANE_C2, 6.75, color="#888")
+    arrow(ax, LANE_C2, 6.05, LANE_C2, 5.95, color="#888")
 
     # Score → risk mini-chart
-    ax.text(LANE_C2, 5.30, "Observed rescue rate by Model 1 total score",
+    ax.text(LANE_C2, 4.85, "Observed rescue rate by Model 1 total score",
             ha="center", fontsize=10.5, fontweight="bold", color=C["blue"])
     bar_centers = [LANE_C2 - 1.95 + i * 0.65 for i in range(7)]
     bar_v = [0.000, 0.091, 0.079, 0.071, 0.119, 0.421, 0.667]
     bar_lbl = ["0", "1", "2", "3", "4", "5", "≥6"]
-    base_y = 3.95
+    base_y = 3.50
     chart_h = 1.05
     for x, v, lab in zip(bar_centers, bar_v, bar_lbl):
         h = max(v * chart_h * 1.2, 0.025)
@@ -158,17 +163,17 @@ def main():
             ha="right", va="top", fontsize=10, color="#444", style="italic")
 
     # Cutoff annotation
-    ax.text(LANE_C2, 3.15,
+    ax.text(LANE_C2, 2.70,
             "Clear break between scores 4 and 5",
             ha="center", fontsize=10, color="#555", style="italic")
 
     # Cutoff strip
-    cut_box = FancyBboxPatch((LANE_C2 - 2.40, 1.45), 4.80, 1.45,
+    cut_box = FancyBboxPatch((LANE_C2 - 2.40, 1.00), 4.80, 1.45,
                               boxstyle="round,pad=0.02,rounding_size=0.04",
                               linewidth=1.0, edgecolor=C["blue"],
                               facecolor="#FFFFFF", zorder=2)
     ax.add_patch(cut_box)
-    ax.text(LANE_C2, 2.65, "Recommended cutoff:  Score ≥ 5",
+    ax.text(LANE_C2, 2.20, "Recommended cutoff:  Model 1 ≥ 5",
             ha="center", fontsize=11, fontweight="bold", color=C["blue"])
 
     # Two horizontal split bars: low-risk vs high-risk
@@ -176,15 +181,15 @@ def main():
     bar_w = 4.40
     seg1 = bar_w * (165 / 214)
     seg2 = bar_w * (49 / 214)
-    ax.add_patch(Rectangle((bar_x0, 2.05), seg1, 0.20,
+    ax.add_patch(Rectangle((bar_x0, 1.60), seg1, 0.20,
                              facecolor=C["green"], edgecolor="white", zorder=3))
-    ax.add_patch(Rectangle((bar_x0 + seg1, 2.05), seg2, 0.20,
+    ax.add_patch(Rectangle((bar_x0 + seg1, 1.60), seg2, 0.20,
                              facecolor=C["red"], edgecolor="white", zorder=3))
-    ax.text(bar_x0 + seg1 / 2, 1.85,
+    ax.text(bar_x0 + seg1 / 2, 1.40,
             "Low risk\nn = 165   9.1% rescue",
             ha="center", va="top", fontsize=9.4, color=C["green"],
             fontweight="bold", linespacing=1.1)
-    ax.text(bar_x0 + seg1 + seg2 / 2, 1.85,
+    ax.text(bar_x0 + seg1 + seg2 / 2, 1.40,
             "High risk\nn = 49   42.9% rescue",
             ha="center", va="top", fontsize=9.4, color=C["red"],
             fontweight="bold", linespacing=1.1)

@@ -344,7 +344,7 @@ def main():
         "stratum-specific rescue rates. Two-sided P < 0.05 was significant. Analyses ran in Python 3.13 "
         "(statsmodels and scikit-learn).")
     add_image(doc, V2 / "fig0_study_flow.png", 6.7)
-    add_caption(doc, "Figure 2. Study flow and analytic schema (cohort, predictors, two scoring models, internal validation).")
+    add_caption(doc, "Figure 2. Study flow and analytic schema (cohort, predictors, three scoring models, internal validation).")
 
     # ---- Results ----
     doc.add_page_break()
@@ -414,14 +414,14 @@ def main():
     add_h(doc, "Table 3. Discrimination and calibration — three integer scores.", level=3)
     add_table(doc, perf, col_widths=[1.7, 0.95, 1.0, 0.95, 1.0, 0.65, 0.6])
     add_p(doc,
-        "Model 1 produced an apparent AUC of 0.734 (optimism-corrected 0.732). Model 3 came in at 0.726 "
-        "(0.724) and Model 2 at 0.683 (0.681) — Model 1 and Model 3 are statistically indistinguishable, "
-        "and Model 2 sits about 5 AUC points lower (Figure 4). Fitting a logistic regression on the "
-        "underlying components instead of the integer score moved the apparent AUCs to 0.752 (corrected "
-        "0.703) for Model 1, 0.746 (0.713) for Model 3, and 0.710 (0.679) for Model 2. Brier scores were "
-        "0.120 / 0.120 / 0.128. Calibration was acceptable across the board, with non-significant "
-        f"Hosmer–Lemeshow tests for Model 1 (P = {s['m1_hl']['p']:.2f}) and Model 2 "
-        f"(P = {s['m2_hl']['p']:.2f}; Figure 5).")
+        "Model 1's score AUC was 0.734 (Harrell optimism-corrected 0.732). Model 3 was statistically "
+        "indistinguishable at 0.726 (0.724); Model 2 ran about 5 AUC points lower at 0.683 (0.681). "
+        "Figure 4 shows the three ROC curves overlaid. Logistic regression on the underlying components "
+        "instead of the integer score gave apparent AUCs of 0.752 (corrected 0.703) for Model 1, 0.746 "
+        "(0.713) for Model 3, and 0.710 (0.679) for Model 2; the optimism correction was larger for "
+        "the unrestricted regression, as expected. Brier scores were 0.120, 0.120, and 0.128. "
+        "Calibration was acceptable for all three, with non-significant Hosmer–Lemeshow tests "
+        f"(Model 1 P = {s['m1_hl']['p']:.2f}; Model 2 P = {s['m2_hl']['p']:.2f}; Figure 5).")
     add_image(doc, V2 / "fig1_roc.png", 5.0)
     add_caption(doc, "Figure 4. Receiver operating characteristic curves for the three integer scoring models.")
     add_image(doc, V2 / "fig3_calibration.png", 5.0)
@@ -437,14 +437,14 @@ def main():
 
     add_h(doc, "Risk stratification by total score", level=2)
     add_p(doc,
-        "Rescue rates climbed stepwise with the full Model 1 score, from 0–9% across scores 0–3 to 11.9% "
-        "at score 4, 42.1% at 5, 37.5% at 6, and 66.7% at 7 (Figures 6 and 7). The break sat cleanly "
-        "between 4 and 5. Dichotomizing at ≥5 produced a low-risk arm of 165 patients with a 9.1% rescue "
-        "rate (15/165) and a high-risk arm of 49 patients with a 42.9% rate (21/49) — a 4.7-fold "
-        "difference (Figure 8). Model 3 showed the same pattern with the break between 3 and 4: 6–11% at "
-        "scores 0–3, jumping to 47.1% at 4 and 36.4% at 5; dichotomizing at ≥4 separated 168 patients at "
-        "8.9% rescue from 46 patients at 45.7%. Model 2 showed the same direction with a tighter range "
-        "(2.9% at score 1 to 66.7% at 5).")
+        "Rescue rates climbed stepwise with the full Model 1 score: 0–9% across scores 0–3, then 11.9% "
+        "at score 4, 42.1% at 5, 37.5% at 6, and 66.7% at 7 (Figures 6 and 7). The break is between "
+        "scores 4 and 5. Dichotomizing at ≥5 produced a low-risk arm of 165 patients with a 9.1% "
+        "rescue rate (15/165) and a high-risk arm of 49 patients with a 42.9% rate (21/49), a 4.7-fold "
+        "difference (Figure 8). Model 3 showed the same pattern with the break between 3 and 4: rates "
+        "of 6–11% at scores 0–3 jumped to 47.1% at 4 and 36.4% at 5; dichotomizing at ≥4 separated 168 "
+        "patients at 8.9% rescue from 46 patients at 45.7%. Model 2 followed the same direction with a "
+        "tighter range (2.9% at score 1 to 66.7% at 5).")
     add_image(doc, V2 / "fig2_score_risk.png", 6.7)
     add_caption(doc, "Figure 6. Observed rescue rate by total score for all three models (Wilson 95% CI whiskers).")
     add_h(doc, "Table 7. Score → rescue rate (Model 1, full).", level=3)
@@ -522,14 +522,15 @@ def main():
     doc.add_page_break()
     add_h(doc, "Discussion", level=1)
     add_p(doc,
-        "We built and internally validated two pre-procedural integer scores for the rescue-surgery "
-        "endpoint after MMA embolization for chronic subdural hematoma. The full 8-point score "
-        "discriminates rescue with an optimism-corrected AUC of 0.73 and stratifies patients into a "
-        "low-risk arm (9.1% rescue rate) and a high-risk arm (42.9%) at the cutoff of ≥5 — a 4.7-fold "
-        "difference that maps cleanly onto the post-procedural surveillance question. The simplified "
-        "5-point score performs at AUC 0.68 and is useful when laboratory or procedural data are not yet "
-        "available. Both are calibrated across deciles of predicted probability, which means the absolute "
-        "risk numbers can be used directly, not just as a ranking.")
+        "We built and internally validated three pre-procedural integer scores for the rescue-surgery "
+        "endpoint after MMA embolization for chronic subdural hematoma. The full 8-point Model 1 "
+        "discriminates rescue with an optimism-corrected AUC of 0.73 and separates a low-risk arm "
+        "(9.1% rescue rate) from a high-risk arm (42.9%) at the cutoff of ≥5, a 4.7-fold difference "
+        "directly relevant to post-procedural surveillance. Model 3 reaches an essentially identical "
+        "AUC of 0.72 with two fewer variables. The simplified 5-point Model 2 lands at AUC 0.68 and "
+        "is useful when laboratory or procedural data are not yet available at triage. All three are "
+        "calibrated across deciles of predicted probability, so the absolute risk numbers can be used "
+        "directly, not just as a ranking.")
 
     add_p(doc,
         "The volume effect we observed — a doubling of rescue risk for SDH ≥100 mL at baseline — is "
@@ -541,18 +542,22 @@ def main():
         "radiographic descriptor in cSDH workup.")
 
     add_p(doc,
-        "The second finding is less straightforward. Patients who came to embolization without a focal "
-        "neurological deficit had three times the rescue rate of patients who did. This runs counter to "
-        "intuition — symptoms ought to mark severity — but the explanation is almost certainly selection. "
-        "A patient with a 120 mL hematoma and a hemiparesis goes to the operating room first; a patient "
-        "with the same hematoma and no deficit gets embolized and watched. The asymptomatic-but-"
-        "radiographically-large group is exactly the group whose hematoma can grow unpredictably in the "
-        "weeks after embolization, and they are exactly the group most likely to come back for rescue. "
-        "This pattern is consistent with the treatment-effect-heterogeneity analysis recently reported "
-        "by Chen and colleagues, in which patients embolized for radiographic reasons rather than "
-        "clinical ones derived less benefit from the procedure than patients with clear clinical "
-        "indications.¹⁸ If our finding is reproduced externally, it argues for tighter post-procedural "
-        "imaging surveillance specifically in the asymptomatic-but-large subgroup.⁵,⁸,⁹")
+        "The second finding is counterintuitive and warrants more careful interpretation than the volume "
+        "effect. Patients who came to embolization without a focal neurological deficit had three times "
+        "the rescue rate of patients who did. Read at face value, this seems wrong: a focal deficit "
+        "should mark a sicker patient. The most likely explanation is treatment selection, not "
+        "biology. A patient with a 120 mL hematoma and a hemiparesis goes to the operating room first "
+        "and never enters the embolization cohort; a patient with the same hematoma and no deficit gets "
+        "embolized and watched, then comes back if the hematoma fails to resolve. The asymptomatic-but-"
+        "radiographically-large group is the residual that flows into MMA embolization in current "
+        "practice, and that group is exactly where embolization underperforms. This reading aligns with "
+        "the treatment-effect-heterogeneity analysis recently reported by Chen and colleagues, in which "
+        "patients embolized for radiographic reasons rather than clinical ones derived less benefit "
+        "than patients with clear clinical indications.¹⁸ Until the variable is independently replicated "
+        "in a cohort with consistent indication criteria, the focal-deficit term should be treated as "
+        "an indicator of indication for embolization rather than as a biological risk factor for "
+        "rescue. If it does replicate, it argues for tighter imaging surveillance in the asymptomatic-"
+        "but-radiographically-large subgroup specifically.⁵,⁸,⁹")
 
     add_p(doc,
         "The score builds on, but does not replicate, the existing cSDH grading systems. Markwalder's "
@@ -594,9 +599,18 @@ def main():
         "sensitivity analysis in the supplement gave the same direction of effect with wider confidence "
         "intervals. Embolic-agent and access-route data were captured but were not made part of the "
         "score, both because they are not routinely available before the procedure and because the "
-        "published evidence on their independent contribution is mixed.¹²,¹⁵,¹⁹ Finally, prospective "
-        "external validation, ideally pooled across the active MMA registries and embedded inside the "
-        "next generation of randomized trials,⁷,²⁵ is the natural next step.")
+        "published evidence on their independent contribution is mixed.¹²,¹⁵,¹⁹")
+    add_p(doc,
+        "Two further caveats deserve specific mention. First, the absence of focal neurological deficit "
+        "appears as a strong positive predictor of rescue, but as discussed above, it almost certainly "
+        "captures who got selected for embolization rather than a biological risk factor; it should be "
+        "treated as an indication-marker until external replication. Centers with stricter indication "
+        "criteria for MMA embolization may not see the same association. Second, our cohort reflects a "
+        "single institution's evolving practice in 2024–2026, during the same period in which EMBOLISE,²⁶ "
+        "MAGIC-MT,²⁷ and EMPROTECT¹⁷ shifted clinical equipoise; the score's coefficients should be "
+        "re-estimated as patient selection patterns mature. Prospective external validation, ideally "
+        "pooled across the active MMA registries and embedded inside the next generation of randomized "
+        "trials,⁷,²⁵ is the next step.")
 
     add_p(doc,
         "The score is intentionally simple. The 8-point version can be filled out on a single page from "
