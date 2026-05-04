@@ -1,0 +1,26 @@
+# Raw clinical data — contains PHI (MRNs, dates) — do NOT commit
+mmaecsv.csv
+mmaefinalfinal.xlsx
+*.RData
+.Rhistory
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Build artifacts that can be regenerated
+*.pyc
+
+# Large local TIFFs (the zipped bundle is shipped via docs/)
+v2/tiff/
+
+# Local notes
+.claude/
