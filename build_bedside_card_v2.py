@@ -78,17 +78,16 @@ def main():
     y = H - 1.55 * inch
     c.setFillColor(NAVY)
     c.setFont(FONT_B, 11.5)
-    c.drawString(0.5 * inch, y, "MODEL 1  (full · max 8 pts)")
+    c.drawString(0.5 * inch, y, "MODEL 1  (full · max 7 pts)")
     c.setStrokeColor(NAVY)
     c.setLineWidth(0.7)
     c.line(0.5 * inch, y - 0.05 * inch, 4.6 * inch, y - 0.05 * inch)
 
     items = [
         ("Age   <65 / 65–80 / >80",            "0 / 1 / 2"),
-        ("SDH volume ≥ 100 mL",           "+1"),
+        ("SDH volume ≥ 100 mL",                "+1"),
         ("Anticoagulation",                    "+1"),
-        ("Absence of focal deficit",           "+1"),
-        ("Platelets <150 ×10⁹/L",    "+1"),
+        ("Platelets <150 ×10⁹/L",              "+1"),
         ("Antiplatelet therapy",               "+1"),
         ("Anterior + posterior embolization",  "+1"),
     ]
@@ -117,19 +116,18 @@ def main():
 
     rows = [
         ("Score", "n",  "Failures", "Rate"),
-        ("0",     "1",  "0",        "0.0%"),
-        ("1",     "11", "1",        "9.1%"),
-        ("2",     "38", "3",        "7.9%"),
-        ("3",     "56", "4",        "7.1%"),
-        ("4",     "59", "7",        "11.9%"),
-        ("5",     "38", "16",       "42.1%"),
-        ("6",     "8",  "3",        "37.5%"),
-        ("≥7", "3", "2",       "66.7%"),
+        ("0",     "8",  "0",        "0.0%"),
+        ("1",     "29", "4",        "13.8%"),
+        ("2",     "50", "3",        "6.0%"),
+        ("3",     "64", "6",        "9.4%"),
+        ("4",     "47", "18",       "38.3%"),
+        ("5",     "13", "3",        "23.1%"),
+        ("≥6",    "3",  "2",        "66.7%"),
     ]
     col_x = [0.55 * inch, 1.50 * inch, 2.45 * inch, 3.50 * inch]
     row_h = 0.21 * inch
     for i, row in enumerate(rows):
-        is_high = i >= 6  # scores 5, 6, 7 are high
+        is_high = i >= 5  # scores 4, 5, ≥6 are high (cutoff ≥ 4)
         if i == 0:
             c.setFillColor(NAVY)
             c.rect(0.50 * inch, y - 0.04 * inch, 4.10 * inch, row_h,
@@ -166,11 +164,11 @@ def main():
     c.line(rx, ry - 0.05 * inch, rx + rw, ry - 0.05 * inch)
 
     actions = [
-        (GREEN, "Score 0–2  ·  Low",
+        (GREEN, "Score 0–1  ·  Low",
          "Standard post-procedure care.\nRoutine clinical follow-up."),
-        (GOLD,  "Score 3–4  ·  Intermediate",
+        (GOLD,  "Score 2–3  ·  Intermediate",
          "Standard surveillance + interval\nimaging at 2–4 weeks."),
-        (RED,   "Score ≥ 5  ·  High",
+        (RED,   "Score ≥ 4  ·  High",
          "Tighter surveillance. Early CT\n(24–72 h). Low threshold for rescue."),
     ]
     ay = ry - 0.40 * inch
@@ -200,10 +198,10 @@ def main():
     ry2 -= 0.30 * inch
 
     perf_lines = [
-        ("AUC (Model 1)",          "0.73 (corrected)"),
-        ("Cutoff ≥ 5",        "Sens 58%  ·  Spec 84%"),
-        ("Low vs high",            "9.1% vs 42.9% rescue"),
-        ("Calibration",            "Hosmer–Lemeshow OK"),
+        ("AUC (Model 1)",     "0.70 (corrected)"),
+        ("Cutoff ≥ 4",        "Sens 64%  ·  Spec 78%"),
+        ("Low vs high",       "8.6% vs 36.5% rescue"),
+        ("Calibration",       "Hosmer–Lemeshow OK"),
     ]
     c.setFont(FONT, 10)
     for label, value in perf_lines:

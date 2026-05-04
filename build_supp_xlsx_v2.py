@@ -105,14 +105,13 @@ def main():
         out["P value"] = df["p"].apply(lambda x: "<0.001" if x < 0.001 else f"{x:.3f}")
         return out
 
-    # Score components definitions
+    # Score components definitions (focal deficit dropped after sensitivity analysis)
     score_def = pd.DataFrame([
         ("Age <65 years", 0, "Yes", "Yes"),
         ("Age 65–80 years", 1, "Yes", "Yes"),
         ("Age >80 years", 2, "Yes", "Yes"),
         ("SDH volume ≥100 mL", 1, "Yes", "Yes"),
         ("Anticoagulation", 1, "Yes", "Yes"),
-        ("Absence of focal deficit", 1, "Yes", "Yes"),
         ("Platelets <150 ×10⁹/L", 1, "Yes", "No"),
         ("Antiplatelet therapy", 1, "Yes", "No"),
         ("Anterior + posterior embolization", 1, "Yes", "No"),
@@ -143,8 +142,8 @@ def main():
         ("Hosmer–Lemeshow P",
          round(s["m1_hl"]["p"], 3),
          round(s["m2_hl"]["p"], 3)),
-        ("Max possible score", 8, 5),
-        ("Recommended cutoff", "≥5", "≥4"),
+        ("Max possible score", 7, 4),
+        ("Recommended cutoff", "≥4", "≥3"),
     ], columns=["Metric", "Model 1 (full, 8-pt)", "Model 2 (simple, 5-pt)"])
 
     # Build workbook
@@ -210,7 +209,6 @@ def main():
             "sdh_vol_ge100": "SDH volume ≥100 mL",
             "plt_lt150": "Platelets <150 ×10⁹/L",
             "antiplatelet": "Antiplatelet therapy",
-            "no_focal_deficit": "Absence of focal deficit",
         }
         m3_co_n["variable"] = m3_co_n["variable"].map(m3_label_map)
         ws = wb.create_sheet("M3_MultivariableOR")

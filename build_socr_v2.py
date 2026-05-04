@@ -37,11 +37,10 @@ def main():
         + sc["sdh_vol_ge100"].values
         + sc["plt_lt150"].values
         + sc["antiplatelet"].values
-        + sc["no_focal_deficit"].values
     ).astype(int)
 
     feats = ["age_pts_socr", "sdh_vol_ge100", "plt_lt150",
-             "antiplatelet", "no_focal_deficit"]
+             "antiplatelet"]
     X = sc[feats]
     y = sc["y"].values
 

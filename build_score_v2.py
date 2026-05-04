@@ -72,10 +72,12 @@ def load_and_score(csv_path: Path) -> pd.DataFrame:
     # Anterior + posterior embolization
     out["ant_post"] = (df["branches"].astype(str).str.strip() == "Anterior + posterior").astype(int)
 
-    # Total scores
-    m1_cols = ["age_pts", "sdh_vol_ge100", "anticoag", "no_focal_deficit",
+    # Total scores — focal_deficit excluded after sensitivity analysis
+    # showed it acts as a selection-bias marker rather than a biological risk
+    # factor (see manuscript Limitations).
+    m1_cols = ["age_pts", "sdh_vol_ge100", "anticoag",
                "plt_lt150", "antiplatelet", "ant_post"]
-    m2_cols = ["age_pts", "sdh_vol_ge100", "anticoag", "no_focal_deficit"]
+    m2_cols = ["age_pts", "sdh_vol_ge100", "anticoag"]
     out["score_m1"] = out[m1_cols].sum(axis=1).astype(int)
     out["score_m2"] = out[m2_cols].sum(axis=1).astype(int)
 
@@ -216,9 +218,9 @@ def main():
     print(f"Model 2 score AUC: apparent={results['m2_score_auc']['apparent']:.3f} corrected={results['m2_score_auc']['corrected']:.3f}")
 
     # Multivariable logistic — use the per-variable encoding
-    m1_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "no_focal_deficit",
+    m1_X = sc[["age_pts", "sdh_vol_ge100", "anticoag",
                "plt_lt150", "antiplatelet", "ant_post"]]
-    m2_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "no_focal_deficit"]]
+    m2_X = sc[["age_pts", "sdh_vol_ge100", "anticoag"]]
 
     m1_logit = logistic_fit_eval(m1_X, sc["y"].values)
     m2_logit = logistic_fit_eval(m2_X, sc["y"].values)

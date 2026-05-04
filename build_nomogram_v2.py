@@ -35,7 +35,6 @@ def main():
         ("Age category",       "age_pts",         [0, 1, 2],  ["<65", "65–80", ">80"]),
         ("SDH volume ≥100 mL", "sdh_vol_ge100",   [0, 1],     ["No", "Yes"]),
         ("Anticoagulation",    "anticoag",        [0, 1],     ["No", "Yes"]),
-        ("Absence of focal deficit", "no_focal_deficit", [0, 1], ["No (deficit)", "Yes (no deficit)"]),
         ("Platelets <150",     "plt_lt150",       [0, 1],     ["No", "Yes"]),
         ("Antiplatelet therapy", "antiplatelet",  [0, 1],     ["No", "Yes"]),
         ("Anterior + posterior", "ant_post",      [0, 1],     ["No", "Yes"]),

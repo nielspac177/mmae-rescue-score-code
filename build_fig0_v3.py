@@ -113,7 +113,6 @@ def main():
         "Age  (<65 / 65–80 / >80)",
         "SDH volume ≥ 100 mL",
         "Anticoagulation",
-        "Absence of focal deficit",
         "Platelets < 150 ×10⁹/L",
         "Antiplatelet therapy",
         "Anterior + posterior embolization",
@@ -128,13 +127,13 @@ def main():
             ha="center", fontsize=10, color="#444", style="italic")
 
     box(ax, LANE_C2, 7.20, 4.85, 0.65,
-        "Model 1 — Full   (max 8 pts)\nall 7 predictors above",
+        "Model 1 — Full   (max 7 pts)\nall 6 predictors above",
         C["blue"], font_size=10.5)
     box(ax, LANE_C2, 6.40, 4.85, 0.65,
-        "Model 3   (max 6 pts)\nage (>85), vol., plt, antiplatelet, deficit",
+        "Model 3   (max 5 pts)\nage (>85), vol., plt, antiplatelet",
         C["purple"], font_size=10.5)
     box(ax, LANE_C2, 5.60, 4.85, 0.65,
-        "Model 2 — Simple   (max 5 pts)\nage, volume, anticoag., deficit",
+        "Model 2 — Simple   (max 4 pts)\nage, volume, anticoagulation",
         C["gold"], font_size=10.5)
     arrow(ax, LANE_C2, 6.85, LANE_C2, 6.75, color="#888")
     arrow(ax, LANE_C2, 6.05, LANE_C2, 5.95, color="#888")
@@ -142,8 +141,10 @@ def main():
     # Score → risk mini-chart
     ax.text(LANE_C2, 4.85, "Observed rescue rate by Model 1 total score",
             ha="center", fontsize=10.5, fontweight="bold", color=C["blue"])
+    # Updated for Model 1 without focal deficit (6 vars, max 7)
+    # rates from v2/m1_risk_by_score.csv
     bar_centers = [LANE_C2 - 1.95 + i * 0.65 for i in range(7)]
-    bar_v = [0.000, 0.091, 0.079, 0.071, 0.119, 0.421, 0.667]
+    bar_v = [0.000, 0.138, 0.060, 0.094, 0.383, 0.231, 0.667]
     bar_lbl = ["0", "1", "2", "3", "4", "5", "≥6"]
     base_y = 3.50
     chart_h = 1.05
@@ -164,7 +165,7 @@ def main():
 
     # Cutoff annotation
     ax.text(LANE_C2, 2.70,
-            "Clear break between scores 4 and 5",
+            "Clear break between scores 3 and 4",
             ha="center", fontsize=10, color="#555", style="italic")
 
     # Cutoff strip
@@ -173,24 +174,28 @@ def main():
                               linewidth=1.0, edgecolor=C["blue"],
                               facecolor="#FFFFFF", zorder=2)
     ax.add_patch(cut_box)
-    ax.text(LANE_C2, 2.20, "Recommended cutoff:  Model 1 ≥ 5",
+    ax.text(LANE_C2, 2.20, "Recommended cutoff:  Model 1 ≥ 4",
             ha="center", fontsize=11, fontweight="bold", color=C["blue"])
 
     # Two horizontal split bars: low-risk vs high-risk
+    # Updated for cutoff ≥ 4 (no focal deficit)
     bar_x0 = LANE_C2 - 2.20
     bar_w = 4.40
-    seg1 = bar_w * (165 / 214)
-    seg2 = bar_w * (49 / 214)
+    n_low = 8 + 29 + 50 + 64       # scores 0-3
+    n_high = 47 + 13 + 3            # scores 4-6
+    seg1 = bar_w * (n_low / 214)
+    seg2 = bar_w * (n_high / 214)
     ax.add_patch(Rectangle((bar_x0, 1.60), seg1, 0.20,
                              facecolor=C["green"], edgecolor="white", zorder=3))
     ax.add_patch(Rectangle((bar_x0 + seg1, 1.60), seg2, 0.20,
                              facecolor=C["red"], edgecolor="white", zorder=3))
+    # Low (≤3): 13/151 = 8.6%; High (≥4): 23/63 = 36.5%
     ax.text(bar_x0 + seg1 / 2, 1.40,
-            "Low risk\nn = 165   9.1% rescue",
+            "Low risk\nn = 151   8.6% rescue",
             ha="center", va="top", fontsize=9.4, color=C["green"],
             fontweight="bold", linespacing=1.1)
     ax.text(bar_x0 + seg1 + seg2 / 2, 1.40,
-            "High risk\nn = 49   42.9% rescue",
+            "High risk\nn = 63   36.5% rescue",
             ha="center", va="top", fontsize=9.4, color=C["red"],
             fontweight="bold", linespacing=1.1)
 
@@ -202,7 +207,7 @@ def main():
         ("Per-stratum risk", "Wilson 95% CIs at each score"),
         ("ML comparison", "RF · GBM · Elastic-Net · XGB"),
         ("Decision Curve", "Net benefit vs threshold prob."),
-        ("Operating point", "Sens / Spec / PPV / NPV at ≥5"),
+        ("Operating point", "Sens / Spec / PPV / NPV at ≥4"),
         ("Bedside card", "1-page printable PDF"),
     ]
     val_box = FancyBboxPatch((10.95, 0.85), 4.65, 7.05,
@@ -235,10 +240,10 @@ def main():
     ax.text(0.7, 0.375, "Result", ha="left", va="center",
             fontsize=10, fontweight="bold", color=C["blue"], style="italic")
     ax.plot([1.55, 1.55], [0.20, 0.55], color=C["lt"], lw=1)
-    ax.text(3.4, 0.375, "AUC 0.73 (corrected)", ha="center", va="center",
+    ax.text(3.4, 0.375, "AUC 0.70 (corrected)", ha="center", va="center",
             fontsize=11.5, fontweight="bold", color=C["blue"])
     ax.plot([5.30, 5.30], [0.20, 0.55], color=C["lt"], lw=1)
-    ax.text(8.85, 0.375, "Score ≥ 5  →  4.7-fold higher rescue rate (43% vs 9%)",
+    ax.text(8.85, 0.375, "Score ≥ 4  →  4.2-fold higher rescue rate (37% vs 9%)",
             ha="center", va="center", fontsize=11.5, fontweight="bold", color=C["red"])
     ax.plot([12.40, 12.40], [0.20, 0.55], color=C["lt"], lw=1)
     ax.text(13.95, 0.375, "Calibrated  (HL P > 0.6)",

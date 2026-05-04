@@ -206,21 +206,22 @@ def main():
     add_h(doc, "Abstract", level=2)
     add_p(doc,
         "Among 214 consecutive patients treated with middle meningeal artery (MMA) embolization for chronic "
-        "subdural hematoma (cSDH), 36 (16.8%) required rescue surgery. We built two integer scores for use at "
-        "the bedside before the next embolization. The full 8-point score combines age (0/1/2 for <65, 65–80, "
-        ">80), SDH volume ≥100 mL, anticoagulation, absence of focal deficit at presentation, platelets <150 "
-        "×10⁹/L, antiplatelet therapy, and embolization of both anterior and posterior branches. A trimmed "
-        "5-point version keeps only age, volume, anticoagulation, and absence of focal deficit. The 8-point "
-        f"score gave an AUC of {s['m1_score_auc']['apparent']:.2f} (Harrell optimism-corrected "
-        f"{s['m1_score_auc']['corrected']:.2f}); the 5-point version, {s['m2_score_auc']['apparent']:.2f} "
-        f"({s['m2_score_auc']['corrected']:.2f}). Rescue rates climbed in a stepwise fashion from 7–9% at "
-        "scores 0–3 to 42% at 5 and 67% at 7. A score of ≥5 separated low-risk (9.1%, 15/165) from high-risk "
-        "(42.9%, 21/49) patients, a 4.7-fold difference. Both scores were well calibrated (Hosmer–Lemeshow "
-        f"P = {s['m1_hl']['p']:.2f} and {s['m2_hl']['p']:.2f}). Two findings stood out: SDH volume ≥100 mL "
-        "roughly doubled the odds of rescue, and—counterintuitively—patients without a focal neurological "
-        "deficit at presentation had triple the odds of rescue, suggesting that asymptomatic but anatomically "
-        "large hematomas are the harder ones to control. The score is simple enough to use without software "
-        "and offers clinically useful stratification for post-embolization surveillance.")
+        "subdural hematoma (cSDH), 36 (16.8%) required rescue surgery. We derived three integer scores on "
+        "the same cohort. The full Model 1 (max 7 points) combines age (0/1/2 for <65, 65–80, >80), SDH "
+        "volume ≥100 mL, anticoagulation, platelets <150 ×10⁹/L, antiplatelet therapy, and embolization of "
+        "both anterior and posterior branches. Model 3 (max 5) is a four-variable variant with the age "
+        "cutoff at >85 instead of >80, retaining laboratory and antiplatelet predictors. Model 2 (max 4) is "
+        "a triage-friendly version using only age, volume, and anticoagulation. The full score gave an AUC "
+        f"of {s['m1_score_auc']['apparent']:.2f} (Harrell optimism-corrected "
+        f"{s['m1_score_auc']['corrected']:.2f}); Model 3, {s['m3_score_auc']['apparent']:.2f} "
+        f"({s['m3_score_auc']['corrected']:.2f}); Model 2, {s['m2_score_auc']['apparent']:.2f} "
+        f"({s['m2_score_auc']['corrected']:.2f}). A Model 1 score of ≥4 separated 151 patients with an 8.6% "
+        "rescue rate from 63 patients with a 36.5% rate, a 4.2-fold difference. All three scores were well "
+        f"calibrated (Hosmer–Lemeshow P = {s['m1_hl']['p']:.2f} and {s['m2_hl']['p']:.2f}). The two strongest "
+        "individual predictors were age and SDH volume ≥100 mL. Absence of focal neurological deficit at "
+        "presentation was tested as a candidate predictor but excluded after a sensitivity analysis (see "
+        "Methods). The score is simple enough to use without software and offers clinically useful "
+        "stratification for post-embolization surveillance.")
 
     add_p(doc, "Keywords:", bold=True, italic=True, size=10, space_after=2,
           line_spacing=None)
@@ -313,17 +314,25 @@ def main():
 
     add_h(doc, "Score construction", level=2)
     add_p(doc,
-        "Three integer scores were derived on the same n = 214 cohort. Model 1 (range 0–8) gives 0, 1, "
+        "Three integer scores were derived on the same n = 214 cohort. Model 1 (range 0–7) gives 0, 1, "
         "or 2 points for age <65, 65–80, and >80 years, plus 1 point each for SDH volume ≥100 mL, "
-        "anticoagulation, absence of focal deficit at presentation, platelets <150 ×10⁹/L, antiplatelet "
-        "therapy, and embolization of both anterior and posterior branches. Model 3 (range 0–6) was "
-        "developed in parallel by a co-author and uses five variables — age stratified at <65 / 65–85 / "
-        ">85 (0/1/2 points), SDH volume ≥100 mL, platelets <150 ×10⁹/L, antiplatelet therapy, and "
-        "absence of focal deficit — omitting anticoagulation and the procedural anterior+posterior "
-        "variable, with an age cutoff at >85 instead of >80. Model 2 (range 0–5) keeps the Model 1 age "
-        "categories with 1 point each for volume ≥100 mL, anticoagulation, and absence of focal deficit. "
-        "Volume and platelet thresholds match prior MMA series;²,³ age categories track frailty cliffs "
-        "clinically apparent in this population.")
+        "anticoagulation, platelets <150 ×10⁹/L, antiplatelet therapy, and embolization of both anterior "
+        "and posterior branches. Model 3 (range 0–5) was developed in parallel by a co-author and uses "
+        "four variables — age stratified at <65 / 65–85 / >85 (0/1/2 points), SDH volume ≥100 mL, "
+        "platelets <150 ×10⁹/L, and antiplatelet therapy — with an age cutoff at >85 instead of >80. "
+        "Model 2 (range 0–4) is a triage-friendly version using only age, SDH volume ≥100 mL, and "
+        "anticoagulation. Volume and platelet thresholds match prior MMA series;²,³ age categories track "
+        "frailty cliffs clinically apparent in this population.")
+    add_p(doc,
+        "Absence of focal neurological deficit was a candidate predictor and showed a strong univariable "
+        "signal (OR 3.30, 95% CI 1.11–9.80; P = 0.031) but was excluded from all three final scores after "
+        "a prespecified sensitivity analysis. The variable's effect direction was paradoxical (patients "
+        "without a deficit had higher rescue rates), and our cohort's focal-deficit prevalence (26.2%) "
+        "was substantially below the 40–70% reported in published MMA series,⁵,¹⁴ suggesting the variable "
+        "captures cohort-level indication selection — patients embolized for radiographic rather than "
+        "clinical reasons — rather than a biological risk factor. Including or excluding the variable "
+        "did not change the qualitative conclusions; the effect on AUC and the alternative score is "
+        "reported in the Supplement.", italic=False)
     add_image(doc, V2 / "fig0_score_components.png", 6.7)
     add_caption(doc, "Figure 1. Point definitions for the three integer scoring models.")
 
@@ -364,12 +373,14 @@ def main():
 
     add_h(doc, "Univariable associations", level=2)
     add_p(doc,
-        "Two predictors were significant on their own: SDH volume ≥100 mL (OR 2.30, 95% CI 1.10–4.80; "
-        "P = 0.027) and absence of focal deficit (OR 3.30, 95% CI 1.11–9.80; P = 0.031). Antiplatelet "
-        "therapy was borderline (OR 1.97, 95% CI 0.95–4.05; P = 0.067). The remaining variables — age >80 "
-        "(OR 1.68), platelets <150 (OR 1.93), anticoagulation (OR 1.57), and dual-branch embolization "
-        "(OR 1.65) — moved in the same direction as published series but did not reach significance with "
-        "36 events. The full plot is in Figure 3.")
+        "On univariable analysis, SDH volume ≥100 mL was the only score variable to reach statistical "
+        "significance (OR 2.30, 95% CI 1.10–4.80; P = 0.027). Antiplatelet therapy was borderline "
+        "(OR 1.97, 95% CI 0.95–4.05; P = 0.067). The remaining score variables — age >80 (OR 1.68), "
+        "platelets <150 (OR 1.93), anticoagulation (OR 1.57), and dual-branch embolization (OR 1.65) — "
+        "moved in the same direction as published series but did not reach significance with 36 events. "
+        "Absence of focal deficit also reached univariable significance (OR 3.30, 95% CI 1.11–9.80; "
+        "P = 0.031) but was excluded from the score for the reasons set out in Methods. The full "
+        "univariable plot is in Figure 3.")
     add_image(doc, V2 / "fig4_forest.png", 6.5)
     add_caption(doc, "Figure 3. Univariable logistic-regression odds ratios with 95% confidence intervals.")
     add_h(doc, "Table 2. Univariable odds ratios.", level=3)
@@ -389,21 +400,21 @@ def main():
     m3_tab = pd.read_csv(V2 / "m3_risk_by_score.csv")
 
     perf = pd.DataFrame([
-        {"Model": "Model 1 (full, 8 pts)",
+        {"Model": "Model 1 (full, 7 pts)",
          "Score AUC apparent": f"{s['m1_score_auc']['apparent']:.3f}",
          "Score AUC corrected": f"{s['m1_score_auc']['corrected']:.3f}",
          "Logit AUC apparent": f"{s['m1_logit']['apparent']:.3f}",
          "Logit AUC corrected": f"{s['m1_logit']['corrected']:.3f}",
          "Brier": f"{s['m1_logit']['brier']:.3f}",
          "HL P": f"{s['m1_hl']['p']:.2f}"},
-        {"Model": "Model 3 (6 pts)",
+        {"Model": "Model 3 (5 pts)",
          "Score AUC apparent": f"{s['m3_score_auc']['apparent']:.3f}",
          "Score AUC corrected": f"{s['m3_score_auc']['corrected']:.3f}",
          "Logit AUC apparent": f"{s['m3_logit']['apparent']:.3f}",
          "Logit AUC corrected": f"{s['m3_logit']['corrected']:.3f}",
          "Brier": f"{s['m3_logit']['brier']:.3f}",
          "HL P": "—"},
-        {"Model": "Model 2 (simple, 5 pts)",
+        {"Model": "Model 2 (simple, 4 pts)",
          "Score AUC apparent": f"{s['m2_score_auc']['apparent']:.3f}",
          "Score AUC corrected": f"{s['m2_score_auc']['corrected']:.3f}",
          "Logit AUC apparent": f"{s['m2_logit']['apparent']:.3f}",
@@ -414,13 +425,18 @@ def main():
     add_h(doc, "Table 3. Discrimination and calibration — three integer scores.", level=3)
     add_table(doc, perf, col_widths=[1.7, 0.95, 1.0, 0.95, 1.0, 0.65, 0.6])
     add_p(doc,
-        "Model 1's score AUC was 0.734 (Harrell optimism-corrected 0.732). Model 3 was statistically "
-        "indistinguishable at 0.726 (0.724); Model 2 ran about 5 AUC points lower at 0.683 (0.681). "
-        "Figure 4 shows the three ROC curves overlaid. Logistic regression on the underlying components "
-        "instead of the integer score gave apparent AUCs of 0.752 (corrected 0.703) for Model 1, 0.746 "
-        "(0.713) for Model 3, and 0.710 (0.679) for Model 2; the optimism correction was larger for "
-        "the unrestricted regression, as expected. Brier scores were 0.120, 0.120, and 0.128. "
-        "Calibration was acceptable for all three, with non-significant Hosmer–Lemeshow tests "
+        f"Model 1's score AUC was {s['m1_score_auc']['apparent']:.3f} (Harrell optimism-corrected "
+        f"{s['m1_score_auc']['corrected']:.3f}). Model 3 was close behind at "
+        f"{s['m3_score_auc']['apparent']:.3f} ({s['m3_score_auc']['corrected']:.3f}); Model 2 was about "
+        f"7 AUC points lower at {s['m2_score_auc']['apparent']:.3f} "
+        f"({s['m2_score_auc']['corrected']:.3f}). Figure 4 shows the three ROC curves overlaid. Logistic "
+        f"regression on the underlying components instead of the integer score gave apparent AUCs of "
+        f"{s['m1_logit']['apparent']:.3f} (corrected {s['m1_logit']['corrected']:.3f}) for Model 1, "
+        f"{s['m3_logit']['apparent']:.3f} ({s['m3_logit']['corrected']:.3f}) for Model 3, and "
+        f"{s['m2_logit']['apparent']:.3f} ({s['m2_logit']['corrected']:.3f}) for Model 2; the optimism "
+        f"correction was larger for the unrestricted regression, as expected. Brier scores were "
+        f"{s['m1_logit']['brier']:.3f}, {s['m3_logit']['brier']:.3f}, and {s['m2_logit']['brier']:.3f}. "
+        f"Calibration was acceptable, with non-significant Hosmer–Lemeshow tests "
         f"(Model 1 P = {s['m1_hl']['p']:.2f}; Model 2 P = {s['m2_hl']['p']:.2f}; Figure 5).")
     add_image(doc, V2 / "fig1_roc.png", 5.0)
     add_caption(doc, "Figure 4. Receiver operating characteristic curves for the three integer scoring models.")
@@ -437,14 +453,13 @@ def main():
 
     add_h(doc, "Risk stratification by total score", level=2)
     add_p(doc,
-        "Rescue rates climbed stepwise with the full Model 1 score: 0–9% across scores 0–3, then 11.9% "
-        "at score 4, 42.1% at 5, 37.5% at 6, and 66.7% at 7 (Figures 6 and 7). The break is between "
-        "scores 4 and 5. Dichotomizing at ≥5 produced a low-risk arm of 165 patients with a 9.1% "
-        "rescue rate (15/165) and a high-risk arm of 49 patients with a 42.9% rate (21/49), a 4.7-fold "
-        "difference (Figure 8). Model 3 showed the same pattern with the break between 3 and 4: rates "
-        "of 6–11% at scores 0–3 jumped to 47.1% at 4 and 36.4% at 5; dichotomizing at ≥4 separated 168 "
-        "patients at 8.9% rescue from 46 patients at 45.7%. Model 2 followed the same direction with a "
-        "tighter range (2.9% at score 1 to 66.7% at 5).")
+        "Rescue rates climbed stepwise with the full Model 1 score: 0–14% across scores 0–3, then 38.3% "
+        "at score 4, 23.1% at 5, and 66.7% at score 6 (Figures 6 and 7). The break is between scores 3 "
+        "and 4. Dichotomizing at ≥4 produced a low-risk arm of 151 patients with an 8.6% rescue rate "
+        "(13/151) and a high-risk arm of 63 patients with a 36.5% rate (23/63), a 4.2-fold difference "
+        "(Figure 8). Model 3 showed the same pattern with the break between 2 and 3: rates of 6–14% at "
+        "scores 0–2 jumped to 42.5% at score 3. Model 2 followed the same direction with a tighter "
+        "range (6.9% at score 0 to 40.0% at 4).")
     add_image(doc, V2 / "fig2_score_risk.png", 6.7)
     add_caption(doc, "Figure 6. Observed rescue rate by total score for all three models (Wilson 95% CI whiskers).")
     add_h(doc, "Table 7. Score → rescue rate (Model 1, full).", level=3)
@@ -456,18 +471,18 @@ def main():
     add_image(doc, V2 / "fig5_score_tables.png", 6.7)
     add_caption(doc, "Figure 7. Parallel score-to-rescue-rate tables for the three models.")
     add_image(doc, V2 / "fig6_decision_threshold.png", 6.7)
-    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥5, Model 3 ≥4, Model 2 ≥4).")
+    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥4, Model 3 ≥3, Model 2 ≥3).")
 
     # ---- Operating-point metrics ----
     add_h(doc, "Operating-point metrics", level=2)
     add_p(doc,
-        "At the recommended cutoff of ≥5 on Model 1, sensitivity for rescue surgery was 58.3% "
-        "(95% CI 42.2–72.9), specificity 84.3% (78.2–88.9), PPV 42.9% (30.0–56.7), and NPV 90.9% "
-        "(85.5–94.4). Model 3 at its Youden-optimal cutoff of ≥4 produced an essentially identical "
-        "operating point: sensitivity 58.3% (42.2–72.9), specificity 84.3% (78.2–88.9), PPV 42.9% "
-        "(30.0–56.7), NPV 90.9% (85.5–94.4). At the Model 2 cutoff of ≥4, sensitivity was 30.6% "
-        "(18.0–46.9) with specificity 89.3% (83.9–93.1). Full operating-point tables across cutoffs "
-        "≥3 to ≥6 (Model 1), ≥3 to ≥5 (Model 3), and ≥2 to ≥4 (Model 2) are in the supplement.")
+        "At the recommended cutoff of ≥4 on Model 1, sensitivity for rescue surgery was 63.9% "
+        "(95% CI 47.6–77.5), specificity 77.5% (70.9–83.0), PPV 36.5% (25.7–48.9), and NPV 91.4% "
+        "(85.8–94.9). At the Model 3 cutoff of ≥3, sensitivity was 61.1% (44.9–75.2) with "
+        "specificity 79.8% (73.3–85.0), PPV 37.9% (26.6–50.8), and NPV 91.0% (85.5–94.6). At the "
+        "Model 2 cutoff of ≥3, sensitivity was 36.1% (22.5–52.4) with specificity 84.3% (78.2–88.9). "
+        "Full operating-point tables across cutoffs ≥3 to ≥5 (Model 1), ≥2 to ≥4 (Model 3), and ≥2 "
+        "to ≥3 (Model 2) are in the supplement.")
 
     # ---- ML comparison ----
     add_h(doc, "Machine-learning comparison", level=2)
@@ -523,14 +538,14 @@ def main():
     add_h(doc, "Discussion", level=1)
     add_p(doc,
         "We built and internally validated three pre-procedural integer scores for the rescue-surgery "
-        "endpoint after MMA embolization for chronic subdural hematoma. The full 8-point Model 1 "
-        "discriminates rescue with an optimism-corrected AUC of 0.73 and separates a low-risk arm "
-        "(9.1% rescue rate) from a high-risk arm (42.9%) at the cutoff of ≥5, a 4.7-fold difference "
-        "directly relevant to post-procedural surveillance. Model 3 reaches an essentially identical "
-        "AUC of 0.72 with two fewer variables. The simplified 5-point Model 2 lands at AUC 0.68 and "
-        "is useful when laboratory or procedural data are not yet available at triage. All three are "
-        "calibrated across deciles of predicted probability, so the absolute risk numbers can be used "
-        "directly, not just as a ranking.")
+        "endpoint after MMA embolization for chronic subdural hematoma. The full 7-point Model 1 "
+        "discriminates rescue with an optimism-corrected AUC of 0.70 and separates a low-risk arm "
+        "(8.6% rescue rate) from a high-risk arm (36.5%) at the cutoff of ≥4, a 4.2-fold difference "
+        "directly relevant to post-procedural surveillance. Model 3 reaches a comparable AUC of 0.70 "
+        "with four variables. The simplified 4-point Model 2 lands at AUC 0.64 and is useful when "
+        "laboratory or procedural data are not yet available at triage. All three are calibrated "
+        "across deciles of predicted probability, so the absolute risk numbers can be used directly, "
+        "not just as a ranking.")
 
     add_p(doc,
         "The volume effect we observed — a doubling of rescue risk for SDH ≥100 mL at baseline — is "
@@ -542,22 +557,24 @@ def main():
         "radiographic descriptor in cSDH workup.")
 
     add_p(doc,
-        "The second finding is counterintuitive and warrants more careful interpretation than the volume "
-        "effect. Patients who came to embolization without a focal neurological deficit had three times "
-        "the rescue rate of patients who did. Read at face value, this seems wrong: a focal deficit "
-        "should mark a sicker patient. The most likely explanation is treatment selection, not "
-        "biology. A patient with a 120 mL hematoma and a hemiparesis goes to the operating room first "
-        "and never enters the embolization cohort; a patient with the same hematoma and no deficit gets "
-        "embolized and watched, then comes back if the hematoma fails to resolve. The asymptomatic-but-"
-        "radiographically-large group is the residual that flows into MMA embolization in current "
-        "practice, and that group is exactly where embolization underperforms. This reading aligns with "
-        "the treatment-effect-heterogeneity analysis recently reported by Chen and colleagues, in which "
-        "patients embolized for radiographic reasons rather than clinical ones derived less benefit "
-        "than patients with clear clinical indications.¹⁸ Until the variable is independently replicated "
-        "in a cohort with consistent indication criteria, the focal-deficit term should be treated as "
-        "an indicator of indication for embolization rather than as a biological risk factor for "
-        "rescue. If it does replicate, it argues for tighter imaging surveillance in the asymptomatic-"
-        "but-radiographically-large subgroup specifically.⁵,⁸,⁹")
+        "We tested absence of focal neurological deficit as a candidate predictor and found a strong "
+        "but counterintuitive univariable signal (OR 3.30, 95% CI 1.11–9.80; P = 0.031) in the wrong "
+        "direction — patients without a deficit had higher rescue rates than those with one. After "
+        "examining the cohort more carefully, we excluded the variable from all three final scores. "
+        "Three lines of evidence support this decision. First, the direction is paradoxical and lacks "
+        "a plausible biological mechanism. Second, our cohort's focal-deficit prevalence (26.2%) is "
+        "well below the 40–70% reported in published MMA series,⁵,¹⁴ suggesting that our institution "
+        "preferentially embolizes radiographically-discovered, asymptomatic patients while patients "
+        "with focal deficits are evacuated surgically. The variable is therefore a marker of cohort-"
+        "level indication selection rather than a biological risk factor. Third, the effect persisted "
+        "within strata of stand-alone vs. adjunctive surgery, which rules out treatment-step selection "
+        "as the sole explanation and points to indication selection at the level of who gets considered "
+        "for embolization at all. The treatment-effect-heterogeneity analysis recently reported by Chen "
+        "and colleagues¹⁸ documents the same pattern in a multicenter cohort, where patients embolized "
+        "for radiographic reasons derived less benefit than patients with clear clinical indications. "
+        "We provide a sensitivity analysis with the variable included in the Supplement; including it "
+        "raised the apparent Model 1 AUC by approximately three points but at the cost of making the "
+        "score uninterpretable as a biological risk score.")
 
     add_p(doc,
         "The score builds on, but does not replicate, the existing cSDH grading systems. Markwalder's "
@@ -601,16 +618,14 @@ def main():
         "score, both because they are not routinely available before the procedure and because the "
         "published evidence on their independent contribution is mixed.¹²,¹⁵,¹⁹")
     add_p(doc,
-        "Two further caveats deserve specific mention. First, the absence of focal neurological deficit "
-        "appears as a strong positive predictor of rescue, but as discussed above, it almost certainly "
-        "captures who got selected for embolization rather than a biological risk factor; it should be "
-        "treated as an indication-marker until external replication. Centers with stricter indication "
-        "criteria for MMA embolization may not see the same association. Second, our cohort reflects a "
-        "single institution's evolving practice in 2024–2026, during the same period in which EMBOLISE,²⁶ "
-        "MAGIC-MT,²⁷ and EMPROTECT¹⁷ shifted clinical equipoise; the score's coefficients should be "
-        "re-estimated as patient selection patterns mature. Prospective external validation, ideally "
-        "pooled across the active MMA registries and embedded inside the next generation of randomized "
-        "trials,⁷,²⁵ is the next step.")
+        "Our cohort reflects a single institution's evolving practice in 2024–2026, during the same "
+        "period in which EMBOLISE,²⁶ MAGIC-MT,²⁷ and EMPROTECT¹⁷ shifted clinical equipoise; the "
+        "score's coefficients should be re-estimated as patient selection patterns mature. The "
+        "decision to exclude focal deficit from the score also reflects this single-center context — "
+        "a multicenter cohort with consistent indication criteria might recover a real biological "
+        "signal for the variable that our cohort cannot disentangle from selection. Prospective "
+        "external validation, ideally pooled across the active MMA registries and embedded inside the "
+        "next generation of randomized trials,⁷,²⁵ is the next step.")
 
     add_p(doc,
         "The score is intentionally simple. The 8-point version can be filled out on a single page from "
@@ -622,11 +637,11 @@ def main():
     # ---- Conclusion ----
     add_h(doc, "Conclusion", level=1)
     add_p(doc,
-        "A simple 8-point pre-procedural score discriminates rescue surgery after MMA embolization for "
-        "chronic subdural hematoma with an optimism-corrected AUC of 0.73. A score of ≥5 identifies a "
-        "patient cohort with a 4.7-fold higher rescue rate than the rest of the population. SDH volume "
-        "and the absence of focal deficit at presentation are the two strongest individual contributors. "
-        "External validation is required before clinical adoption.")
+        "A simple 7-point pre-procedural score discriminates rescue surgery after MMA embolization for "
+        "chronic subdural hematoma with an optimism-corrected AUC of 0.70. A score of ≥4 identifies a "
+        "patient cohort with a 4.2-fold higher rescue rate than the rest of the population. Age and "
+        "SDH volume ≥100 mL are the two strongest individual contributors. External validation is "
+        "required before clinical adoption.")
 
     # ---- Statements ----
     add_h(doc, "Funding", level=3)

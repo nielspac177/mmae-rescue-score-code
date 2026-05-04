@@ -41,19 +41,18 @@ def fig0_score_components():
     items_m1 = [
         ("Age <65", 0), ("Age 65–80", 1), ("Age >80", 2),
         ("SDH volume ≥100 mL", 1), ("Anticoagulation", 1),
-        ("Absence of focal deficit", 1), ("Platelets <150 ×10⁹/L", 1),
+        ("Platelets <150 ×10⁹/L", 1),
         ("Antiplatelet therapy", 1), ("Anterior + posterior embolization", 1),
     ]
     items_m3 = [
         ("Age <65", 0), ("Age 65–85", 1), ("Age >85", 2),
         ("SDH volume ≥100 mL", 1),
-        ("Absence of focal deficit", 1), ("Platelets <150 ×10⁹/L", 1),
+        ("Platelets <150 ×10⁹/L", 1),
         ("Antiplatelet therapy", 1),
     ]
     items_m2 = [
         ("Age <65", 0), ("Age 65–80", 1), ("Age >80", 2),
         ("SDH volume ≥100 mL", 1), ("Anticoagulation", 1),
-        ("Absence of focal deficit", 1),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.8),
                              gridspec_kw=dict(wspace=0.04))
@@ -101,9 +100,9 @@ def fig2_score_risk():
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.6),
                              gridspec_kw=dict(wspace=0.28))
     cfg = [
-        (axes[0], m1, C["blue"],   "Model 1 — full (max 8)", 8),
-        (axes[1], m3, C["purple"], "Model 3 (max 6)", 6),
-        (axes[2], m2, C["gold"],   "Model 2 — simple (max 5)", 5),
+        (axes[0], m1, C["blue"],   "Model 1 — full (max 7)", 7),
+        (axes[1], m3, C["purple"], "Model 3 (max 5)", 5),
+        (axes[2], m2, C["gold"],   "Model 2 — simple (max 4)", 4),
     ]
     for ax, tab, color, title, mx in cfg:
         x = tab["score"].values
@@ -186,9 +185,9 @@ def fig5_score_tables():
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.8),
                              gridspec_kw=dict(wspace=0.05))
     cfg = [
-        (axes[0], m1, "Model 1 — full (max 8)", C["blue"]),
-        (axes[1], m3, "Model 3 (max 6)", C["purple"]),
-        (axes[2], m2, "Model 2 — simple (max 5)", C["gold"]),
+        (axes[0], m1, "Model 1 — full (max 7)", C["blue"]),
+        (axes[1], m3, "Model 3 (max 5)", C["purple"]),
+        (axes[2], m2, "Model 2 — simple (max 4)", C["gold"]),
     ]
     for ax, tab, title, color in cfg:
         ax.axis("off")
@@ -230,9 +229,9 @@ def fig6_decision_threshold():
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.6),
                              gridspec_kw=dict(wspace=0.28))
     cfg = [
-        (axes[0], m1, "Model 1 — cutoff ≥ 5", C["blue"],   5),
-        (axes[1], m3, "Model 3 — cutoff ≥ 4", C["purple"], 4),
-        (axes[2], m2, "Model 2 — cutoff ≥ 4", C["gold"],   4),
+        (axes[0], m1, "Model 1 — cutoff ≥ 4", C["blue"],   4),
+        (axes[1], m3, "Model 3 — cutoff ≥ 3", C["purple"], 3),
+        (axes[2], m2, "Model 2 — cutoff ≥ 3", C["gold"],   3),
     ]
     for ax, tab, title, color, cut in cfg:
         low = tab[tab["score"] < cut]
