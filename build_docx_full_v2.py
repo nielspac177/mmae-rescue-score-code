@@ -533,10 +533,32 @@ def main():
         "CV-AUC 0.65) and with SMOTE applied within each training fold (5 features, CV-AUC 0.67). All "
         "three modes produced overlapping 95% intervals, indicating that the AUC ceiling is set by the "
         "limited event count, not by the imbalance per se. Lasso did not retain focal deficit at any "
-        "of the chosen penalties, supporting its exclusion from the primary scores. The practical "
-        "implication is that a clinician using the primary integer score is not at a meaningful "
-        "information disadvantage compared with either a black-box predictor or a data-driven "
-        "feature-selection pipeline with imbalance corrections.")
+        "of the chosen penalties, supporting its exclusion from the primary scores.")
+    add_p(doc,
+        "We extended Model 4 with a series of methodological enhancements (sensitivity Model 5) "
+        "designed to probe whether the Model-4 AUC could be improved further: (a) restricted cubic "
+        "splines (3 knots) on age, SDH volume, platelets, midline shift in mm, GCS, and mRS; "
+        "(b) prespecified clinical interactions (age × SDH volume, anticoagulation × low platelets, "
+        "antiplatelet × age category); (c) Optuna-tuned elastic-net with 40 trials over (C, l1_ratio); "
+        "(d) a stacked ensemble of logistic regression and tuned gradient boosting with a logistic "
+        "meta-learner; (e) a fully Bayesian logistic regression in PyMC with Normal priors on log-odds "
+        "ratios anchored to published MMA-embolization series (anticoagulation OR ≈ 2.0, SDH volume "
+        "≥ 100 mL OR ≈ 2.0, antiplatelet OR ≈ 1.7, midline shift ≥ 5 mm OR ≈ 2.0, age per category "
+        "OR ≈ 1.5, platelets < 150 OR ≈ 1.8; weakly informative N(0, 1) priors for predictors without "
+        "robust external evidence); (f) MICE multiple imputation by iterative chained equations for "
+        "the 15.0% of patients with missing baseline SDH volumes; and (g) a richer continuous-feature "
+        "set including continuous mRS, GCS, midline shift in mm, and INR alongside their binarized "
+        "forms. All approaches were evaluated under the same 5×10 stratified repeated cross-validation "
+        "with 1000-bootstrap confidence intervals. Cross-validated AUCs were 0.61 (95% CI 0.50–0.71) "
+        "for the enriched lasso (a+b+g), 0.60 (0.50–0.71) for the tuned elastic-net (c), 0.54 "
+        "(0.42–0.64) for the stacked ensemble (d), and 0.67 (0.57–0.77) for the Bayesian "
+        "informative-prior model (e). The composite mean of all four approaches gave AUC 0.63 "
+        "(0.52–0.74). None of these enhancements moved AUC outside the Model-4 95% confidence "
+        "interval, and the naive feature expansions (a–c) actually under-performed Model 4 — the "
+        "expected signature of overfitting at this event count. The practical implication is that "
+        "with 36 events, the AUC ceiling is set by the available signal, not by method choice; "
+        "neither black-box predictors, ensembling, hyperparameter search, nor Bayesian shrinkage to "
+        "external priors materially exceeds the parsimonious knowledge-driven score.")
     ml = pd.read_csv(V2 / "ml_comparison.csv")
     ml_f = pd.DataFrame()
     ml_f["Model"] = ml["model"]

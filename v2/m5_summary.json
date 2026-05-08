@@ -1,0 +1,55 @@
+{
+  "n": 214,
+  "events": 36,
+  "n_features_enriched": 33,
+  "approaches": [
+    {
+      "approach": "A+B+G lasso (enriched)",
+      "cv_auc": 0.6048689138576778,
+      "ci_lo": 0.5013435351665785,
+      "ci_hi": 0.7069791745360228
+    },
+    {
+      "approach": "C tuned elastic-net",
+      "cv_auc": 0.6033083645443196,
+      "ci_lo": 0.5024058808305931,
+      "ci_hi": 0.7057776441354515
+    },
+    {
+      "approach": "D stacked ensemble",
+      "cv_auc": 0.5352684144818977,
+      "ci_lo": 0.4202722586605544,
+      "ci_hi": 0.6425185686010777
+    },
+    {
+      "approach": "E Bayesian (informative priors)",
+      "cv_auc": 0.6733770287141073,
+      "ci_lo": 0.5687814933577645,
+      "ci_hi": 0.7695494505494505
+    },
+    {
+      "approach": "Model 5 (composite mean)",
+      "cv_auc": 0.6315543071161049,
+      "ci_lo": 0.52418689876317,
+      "ci_hi": 0.7348443735035914
+    }
+  ],
+  "best_elasticnet": {
+    "C": 0.31200179502842595,
+    "l1_ratio": 0.5520923922916371
+  },
+  "bayesian_features": [
+    "anticoag",
+    "antiplatelet",
+    "sdh_vol_ge100",
+    "mls_ge5",
+    "age_pts",
+    "plt_lt150",
+    "mixed_density",
+    "ant_post",
+    "focal_deficit",
+    "hypertension",
+    "gait",
+    "male"
+  ]
+}
