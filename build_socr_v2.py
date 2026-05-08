@@ -1,7 +1,8 @@
-"""Fit the SOCR score (co-author's parallel analysis) on our 214-patient
-cohort so all three scores are evaluated on identical data.
+"""Fit Model 3 — an alternative age-stratification specification (age cutoff
+>85 instead of >80) — on the 214-patient cohort, so all three scores are
+evaluated on identical data.
 
-SOCR score (max 6):
+Model 3 (max 6):
   Age <65 / 65–85 / >85   →   0 / 1 / 2 pts
   SDH volume ≥100 mL       →   +1
   Platelets <150 ×10⁹/L    →   +1

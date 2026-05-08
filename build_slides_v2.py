@@ -202,7 +202,7 @@ def main():
              Inches(6.95), Inches(1.1), Inches(6.0), Inches(0.4),
              font_size=18, bold=True, color=GOLD_DK)
     add_bullets(s, [
-        "Model 3 — co-author derivation (age >85, plt, antiplatelet)",
+        "Model 3 — alternative age-stratification (age >85, plt, antiplatelet)",
         "Model 4 — lasso, EPV-5 cap, 3 imbalance modes",
         "Model 5 — splines + interactions + tuned EN + stacking + Bayesian + MICE",
         "Focal-deficit-included variants of M1–M3",
@@ -401,7 +401,7 @@ def main():
              font_size=16, bold=True, color=GOLD_DK)
     add_bullets(s, [
         "Model 2 (simple, 4 pts)  AUC 0.64",
-        "Model 3 (co-author, 5 pts)  AUC 0.70",
+        "Model 3 (age cutoff >85, 5 pts)  AUC 0.70",
         "Model 4 (lasso, 5 pts)  CV-AUC 0.66",
         "Model 5 (Bayesian + priors)  CV-AUC 0.67",
         "Composite enhanced bundle  CV-AUC 0.63",
