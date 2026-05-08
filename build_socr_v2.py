@@ -6,7 +6,7 @@ SOCR score (max 6):
   SDH volume ≥100 mL       →   +1
   Platelets <150 ×10⁹/L    →   +1
   Antiplatelet therapy     →   +1
-  Absence of focal deficit →   +1
+  Focal deficit            →   +1
 """
 from __future__ import annotations
 import json
@@ -37,10 +37,11 @@ def main():
         + sc["sdh_vol_ge100"].values
         + sc["plt_lt150"].values
         + sc["antiplatelet"].values
+        + sc["focal_deficit"].values
     ).astype(int)
 
     feats = ["age_pts_socr", "sdh_vol_ge100", "plt_lt150",
-             "antiplatelet"]
+             "antiplatelet", "focal_deficit"]
     X = sc[feats]
     y = sc["y"].values
 

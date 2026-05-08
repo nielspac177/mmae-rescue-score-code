@@ -103,12 +103,12 @@ def main():
                 facecolor="white", pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
 
-    # Operating-point metrics for all three scores (no focal deficit)
+    # Operating-point metrics for all three scores (focal_deficit re-included)
     rows = []
     for label, score, cutoffs in [
-        ("Model 1 (full, 7 pts)",   sc["score_m1"].values, [3, 4, 5]),
-        ("Model 3 (5 pts)",          sc["score_m3"].values, [2, 3, 4]),
-        ("Model 2 (simple, 4 pts)",  sc["score_m2"].values, [2, 3]),
+        ("Model 1 (full, 8 pts)",   sc["score_m1"].values, [4, 5, 6]),
+        ("Model 3 (6 pts)",          sc["score_m3"].values, [3, 4, 5]),
+        ("Model 2 (simple, 5 pts)",  sc["score_m2"].values, [2, 3, 4]),
     ]:
         for cut in cutoffs:
             r = operating_point(y, score, cut)
