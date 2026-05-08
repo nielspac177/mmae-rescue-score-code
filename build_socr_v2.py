@@ -32,16 +32,19 @@ def main():
     age_pts_socr = np.where(age < 65, 0, np.where(age <= 85, 1, 2))
 
     sc["age_pts_socr"] = age_pts_socr
+    # PRIMARY: no focal deficit (paired with M1/M2 primary)
     sc["score_m3"] = (
         age_pts_socr
         + sc["sdh_vol_ge100"].values
         + sc["plt_lt150"].values
         + sc["antiplatelet"].values
-        + sc["focal_deficit"].values
     ).astype(int)
+    # SENSITIVITY: focal_deficit added
+    sc["score_m3_focal"] = (sc["score_m3"].values
+                             + sc["focal_deficit"].values).astype(int)
 
     feats = ["age_pts_socr", "sdh_vol_ge100", "plt_lt150",
-             "antiplatelet", "focal_deficit"]
+             "antiplatelet"]
     X = sc[feats]
     y = sc["y"].values
 

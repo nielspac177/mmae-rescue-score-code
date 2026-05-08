@@ -206,27 +206,26 @@ def main():
     add_h(doc, "Abstract", level=2)
     add_p(doc,
         "Among 214 consecutive patients treated with middle meningeal artery (MMA) embolization for chronic "
-        "subdural hematoma (cSDH), 36 (16.8%) required rescue surgery. We derived three integer scores and "
-        "one data-driven logistic model on the same cohort. The full Model 1 (max 8 points) combines age "
-        "(0/1/2 for <65, 65–80, >80), SDH volume ≥100 mL, anticoagulation, focal neurological deficit at "
-        "presentation, platelets <150 ×10⁹/L, antiplatelet therapy, and embolization of both anterior and "
-        "posterior branches. Model 3 (max 6) is a five-variable variant with the age cutoff at >85, "
-        "retaining laboratory, antiplatelet, and focal-deficit predictors. Model 2 (max 5) is a "
-        "triage-friendly version using age, volume, anticoagulation, and focal deficit. Model 4 is a "
-        "data-driven logistic model with seven lasso-selected predictors (age, platelets, hypertension, "
-        "antiplatelet, gait disturbance, anterior + posterior embolization, and SDH volume ≥100 mL), "
-        "evaluated under 5×10 stratified cross-validation. The full score gave an AUC "
-        f"of {s['m1_score_auc']['apparent']:.2f} (Harrell optimism-corrected "
-        f"{s['m1_score_auc']['corrected']:.2f}); Model 3, {s['m3_score_auc']['apparent']:.2f} "
-        f"({s['m3_score_auc']['corrected']:.2f}); Model 2, {s['m2_score_auc']['apparent']:.2f} "
-        f"({s['m2_score_auc']['corrected']:.2f}); and Model 4 reached a cross-validated AUC of 0.67 "
-        "(95% CI 0.58–0.76). A Model 1 score of ≥5 separated 164 patients with a 10.4% rescue rate from "
-        "50 patients with a 38.0% rate, a 3.7-fold difference. All three integer scores were well "
-        f"calibrated (Hosmer–Lemeshow P = {s['m1_hl']['p']:.2f} and {s['m2_hl']['p']:.2f}). The strongest "
-        "individual predictors were SDH volume ≥100 mL and age. Focal neurological deficit was retained in "
-        "Models 1–3 for clinical face validity, although it was non-significant in the multivariable model "
-        "(adjusted OR 0.80, 95% CI 0.36–1.78; P = 0.58) after a data-coding correction increased its "
-        "prevalence from 26.2% to 59.8%, in line with published MMA series. The score is simple enough to "
+        "subdural hematoma (cSDH), 36 (16.8%) required rescue surgery. We derived two primary "
+        "knowledge-driven integer scores and three sensitivity models on the same cohort. The primary full "
+        "Model 1 (max 7 points) combines age (0/1/2 for <65, 65–80, >80), SDH volume ≥100 mL, "
+        "anticoagulation, platelets <150 ×10⁹/L, antiplatelet therapy, and embolization of both anterior "
+        "and posterior branches. The primary simplified Model 2 (max 4) uses age, volume, and "
+        "anticoagulation. Three sensitivity models complete the analysis: Model 3, a five-variable "
+        "co-author derivation with age cutoff at >85; Model 4, a data-driven L1-penalized logistic "
+        "regression on a 25-variable candidate space (capped at the events-per-variable maximum of 7 and "
+        "evaluated under three class-imbalance modes — natural, class_weight=balanced, and SMOTE); and "
+        "focal-deficit-included variants of Models 1–3, retained as a sensitivity sub-analysis after a "
+        "data-coding correction in the focal-deficit variable. The primary Model 1 gave an AUC of "
+        f"{s['m1_score_auc']['apparent']:.2f} (Harrell optimism-corrected "
+        f"{s['m1_score_auc']['corrected']:.2f}); Model 2, {s['m2_score_auc']['apparent']:.2f} "
+        f"({s['m2_score_auc']['corrected']:.2f}). Sensitivity models: Model 3 reached "
+        f"{s['m3_score_auc']['apparent']:.2f} (corrected {s['m3_score_auc']['corrected']:.2f}); Model 4 "
+        "reached a cross-validated AUC of 0.66 (95% CI 0.56–0.75) under natural balance, with overlapping "
+        "intervals across all three imbalance modes. A Model 1 score of ≥4 separated 151 patients with an "
+        "8.6% rescue rate from 63 patients with a 36.5% rate, a 4.2-fold difference. Primary scores were "
+        f"well calibrated (Hosmer–Lemeshow P = {s['m1_hl']['p']:.2f} and {s['m2_hl']['p']:.2f}). The two "
+        "strongest individual predictors were SDH volume ≥100 mL and age. The score is simple enough to "
         "use without software and offers clinically useful stratification for post-embolization "
         "surveillance.")
 
@@ -319,43 +318,48 @@ def main():
         "embolized, particle vs. liquid embolic). All predictors were measured before, or at the time of, "
         "the index embolization.")
 
-    add_h(doc, "Score construction", level=2)
+    add_h(doc, "Score construction — primary models", level=2)
     add_p(doc,
-        "Three integer scores were derived on the same n = 214 cohort. Model 1 (range 0–8) gives 0, 1, "
-        "or 2 points for age <65, 65–80, and >80 years, plus 1 point each for SDH volume ≥100 mL, "
-        "anticoagulation, focal neurological deficit at presentation, platelets <150 ×10⁹/L, antiplatelet "
-        "therapy, and embolization of both anterior and posterior branches. Model 3 (range 0–6) was "
-        "developed in parallel by a co-author and uses five variables — age stratified at <65 / 65–85 / "
-        ">85 (0/1/2 points), SDH volume ≥100 mL, platelets <150 ×10⁹/L, antiplatelet therapy, and focal "
-        "deficit — with an age cutoff at >85 instead of >80. Model 2 (range 0–5) is a triage-friendly "
-        "version using age, SDH volume ≥100 mL, anticoagulation, and focal deficit. Volume and platelet "
-        "thresholds match prior MMA series;²,³ age categories track frailty cliffs clinically apparent in "
-        "this population.")
+        "Two primary knowledge-driven integer scores were derived on the n = 214 cohort. Model 1 "
+        "(range 0–7) gives 0, 1, or 2 points for age <65, 65–80, and >80 years, plus 1 point each for "
+        "SDH volume ≥100 mL, anticoagulation, platelets <150 ×10⁹/L, antiplatelet therapy, and "
+        "embolization of both anterior and posterior branches. Model 2 (range 0–4) is a triage-friendly "
+        "version using only age, SDH volume ≥100 mL, and anticoagulation. Volume and platelet thresholds "
+        "match prior MMA series;²,³ age categories track frailty cliffs clinically apparent in this "
+        "population. Focal neurological deficit was excluded from primary models for the reasons "
+        "documented under \"Focal-deficit data correction and sensitivity\" below.")
+    add_h(doc, "Sensitivity analyses", level=2)
     add_p(doc,
-        "After all clinical-rationale-driven scores were derived, we conducted a parallel data-driven "
-        "derivation (Model 4) for sensitivity analysis. The full candidate-variable matrix (n = 25 "
-        "after near-zero-variance and collinearity filtering) was passed to L1-penalized logistic "
-        "regression with 5×10 stratified cross-validation across a path of 40 penalties. The strongest "
-        "penalty whose cross-validated AUC was within one standard error of the best, subject to a cap of "
-        "≤7 non-zero coefficients (the 1-in-5 events-per-variable rule given 36 events; Peduzzi 1996), "
-        "was selected. The chosen feature set was then refit without penalty for publishable coefficients. "
-        "The same 5×10 stratified cross-validation was used to benchmark random forest, gradient boosting, "
-        "and XGBoost on the lasso-selected feature set and on the full candidate matrix; bootstrap 95% "
-        "confidence intervals (1000 replicates) were computed on out-of-fold predictions.")
+        "Three sensitivity analyses were prespecified. (i) Model 3 (range 0–5) was developed in parallel "
+        "by a co-author and uses four variables — age stratified at <65 / 65–85 / >85 (0/1/2 points), "
+        "SDH volume ≥100 mL, platelets <150 ×10⁹/L, and antiplatelet therapy — with an age cutoff at >85 "
+        "instead of >80. (ii) Focal-deficit-included variants of Models 1, 2, and 3 (max 8 / 5 / 6) were "
+        "retained as a sensitivity sub-analysis after the data-coding correction described below. (iii) "
+        "A purely data-driven Model 4 was derived independently of clinical reasoning. The full "
+        "candidate-variable matrix (n = 25 after near-zero-variance and collinearity filtering) was "
+        "passed through L1-penalized logistic regression with 5×10 stratified cross-validation across a "
+        "path of 30 penalties; the strongest penalty whose CV-AUC was within one standard error of the "
+        "best, subject to a cap of ≤ 7 non-zero coefficients (the events-per-variable maximum given "
+        "36 events; Peduzzi 1996), was selected. Three class-imbalance modes were evaluated and "
+        "reported: natural (no weighting), class_weight='balanced', and SMOTE applied within each "
+        "training fold only. The chosen feature set was refit without penalty to obtain publishable "
+        "coefficients. The same 5×10 stratified cross-validation was used to benchmark random forest, "
+        "gradient boosting, and XGBoost on the lasso-selected feature set; bootstrap 95% confidence "
+        "intervals (1000 replicates) were computed on out-of-fold predictions.")
+    add_h(doc, "Focal-deficit data correction and sensitivity", level=2)
     add_p(doc,
         "An a-priori coding error in the focal-deficit variable was detected during data-quality review "
         "and corrected before final analysis. The corrected prevalence (128 of 214 patients, 59.8%) is "
         "consistent with published MMA-embolization series (40–70%; Salem 2022, Catapano 2021, Ban 2018), "
         "whereas the prior coding (56 of 214, 26.2%) was anomalously low. The correction did not alter "
-        "any other variable. Models were refit on the corrected dataset; results below reflect this "
-        "correction. Focal neurological deficit was retained in Models 1, 2, and 3 for clinical face "
-        "validity, although the variable was non-significant in the multivariable Model 1 (adjusted OR "
-        "0.80, 95% CI 0.36–1.78; P = 0.58). The Akaike information criterion was 1.7 units higher with "
-        "the variable than without it, and the data-driven Model 4 (lasso-selected) did not retain focal "
-        "deficit at the chosen penalty. Cross-validated AUC differed by less than 0.02 between the "
-        "focal-deficit-included and focal-deficit-removed scores; the variable was kept in the integer "
-        "scores for clinical interpretability and to align with the published MMA-failure prediction "
-        "literature, in which focal deficit is consistently part of the clinical assessment.")
+        "any other variable. After correction, the variable was non-significant on univariable analysis "
+        "(OR 1.07, 95% CI 0.51–2.22; P = 0.86) and in the multivariable Model 1 (adjusted OR 0.80, "
+        "95% CI 0.36–1.78; P = 0.58). The Akaike information criterion was 1.7 units higher with the "
+        "variable than without, and the data-driven Model 4 did not retain focal deficit at the "
+        "lasso-selected penalty. Cross-validated AUC differed by less than 0.02 between focal-included "
+        "and focal-removed integer scores. The variable was therefore excluded from the primary scores "
+        "for parsimony, with focal-included variants retained in the sensitivity sub-analysis to allow "
+        "direct comparison.")
     add_image(doc, V2 / "fig0_score_components.png", 6.7)
     add_caption(doc, "Figure 1. Point definitions for the three integer scoring models.")
 
@@ -476,13 +480,13 @@ def main():
 
     add_h(doc, "Risk stratification by total score", level=2)
     add_p(doc,
-        "Rescue rates climbed stepwise with the full Model 1 score: 0–15% across scores 0–4, then 41.0% "
-        "at score 5, 22.2% at 6, and 50.0% at score 7 (Figures 6 and 7). The break is between scores 4 "
-        "and 5. Dichotomizing at ≥5 produced a low-risk arm of 164 patients with a 10.4% rescue rate "
-        "(17/164) and a high-risk arm of 50 patients with a 38.0% rate (19/50), a 3.7-fold difference "
-        "(Figure 8). Model 3 showed the same pattern with the break between 3 and 4: rates of 6–16% at "
-        "scores 0–3 jumped to 40.0% at score 4. Model 2 followed the same direction with a tighter "
-        "range (5.9% at score 0 to 40.0% at score 5).")
+        "Rescue rates climbed stepwise with the primary Model 1 score: 0–14% across scores 0–3, then "
+        "38.3% at score 4, 23.1% at 5, and 66.7% at score 6 (Figures 6 and 7). The break is between "
+        "scores 3 and 4. Dichotomizing at ≥4 produced a low-risk arm of 151 patients with an 8.6% rescue "
+        "rate (13/151) and a high-risk arm of 63 patients with a 36.5% rate (23/63), a 4.2-fold "
+        "difference (Figure 8). Model 2 followed the same direction with a tighter range (6.9% at score "
+        "0 to 40.0% at score 4). Sensitivity Model 3 showed the same pattern with the break between 2 "
+        "and 3: rates of 6–14% at scores 0–2 jumped to 42.5% at score 3.")
     add_image(doc, V2 / "fig2_score_risk.png", 6.7)
     add_caption(doc, "Figure 6. Observed rescue rate by total score for all three models (Wilson 95% CI whiskers).")
     add_h(doc, "Table 7. Score → rescue rate (Model 1, full).", level=3)
@@ -494,42 +498,45 @@ def main():
     add_image(doc, V2 / "fig5_score_tables.png", 6.7)
     add_caption(doc, "Figure 7. Parallel score-to-rescue-rate tables for the three models.")
     add_image(doc, V2 / "fig6_decision_threshold.png", 6.7)
-    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥5, Model 3 ≥4, Model 2 ≥3).")
+    add_caption(doc, "Figure 8. Bedside-friendly dichotomized thresholds (Model 1 ≥4, Model 3 ≥3, Model 2 ≥3).")
 
     # ---- Operating-point metrics ----
     add_h(doc, "Operating-point metrics", level=2)
     add_p(doc,
-        "At the recommended cutoff of ≥5 on Model 1, sensitivity for rescue surgery was 52.8% "
-        "(95% CI 37.0–68.0), specificity 82.6% (76.3–87.5), PPV 38.0% (25.9–51.8), and NPV 89.6% "
-        "(84.0–93.4). At the Model 3 cutoff of ≥4, sensitivity was 50.0% (34.5–65.5) with "
-        "specificity 83.1% (77.0–87.9), PPV 37.5% (25.2–51.6), and NPV 89.2% (83.5–93.0). At the "
-        "Model 2 cutoff of ≥3, sensitivity was 63.9% (47.6–77.5) with specificity 59.6% (52.2–66.5). "
-        "Full operating-point tables across cutoffs ≥4 to ≥6 (Model 1), ≥3 to ≥5 (Model 3), and ≥2 "
-        "to ≥4 (Model 2) are in the supplement.")
+        "At the recommended cutoff of ≥4 on the primary Model 1, sensitivity for rescue surgery was "
+        "63.9% (95% CI 47.6–77.5), specificity 77.5% (70.9–83.0), PPV 36.5% (25.7–48.9), and NPV 91.4% "
+        "(85.8–94.9). At the Model 2 cutoff of ≥3, sensitivity was 36.1% (22.5–52.4) with specificity "
+        "84.3% (78.2–88.9). Among sensitivity models, Model 3 at cutoff ≥3 reached sensitivity 61.1% "
+        "(44.9–75.2) and specificity 79.8% (73.3–85.0). Full operating-point tables across cutoffs ≥3 "
+        "to ≥5 (Model 1), ≥2 to ≥3 (Model 2), and ≥2 to ≥4 (Model 3) are in the supplement.")
 
     # ---- ML comparison ----
     add_h(doc, "Machine-learning and data-driven comparison", level=2)
     add_p(doc,
-        "We compared the integer score against four flexible models trained on the same predictors: "
-        "regularized logistic regression, elastic-net logistic regression, random forest, gradient "
-        "boosting, and XGBoost. Each model was evaluated by 5×10 stratified repeated cross-validation; "
-        "AUC point estimates and 1000-bootstrap 95% confidence intervals are shown in Table 10 and "
-        "Figures 9–10. None of the flexible models exceeded the integer-score AUC; random forest, "
-        "gradient boosting, and XGBoost all landed in the 0.57–0.61 range and the regularized logistic "
-        "models near 0.63. This is the well-recognized consequence of an event-per-variable ratio in "
-        "the single digits²⁹ — flexibility costs more than it gains. We further built a parallel "
-        "data-driven Model 4 by passing the full candidate-variable matrix (25 predictors after "
-        "filtering near-zero-variance and collinear features) through L1-penalized logistic regression "
-        "with 5×10 stratified cross-validation across a path of 40 penalties, capping non-zero "
-        "coefficients at the events-per-variable maximum of 7. Lasso selected age, platelets, "
-        "hypertension, antiplatelet therapy, gait disturbance, anterior + posterior embolization, and "
-        "SDH volume ≥100 mL. The unpenalized logistic refit on those 7 variables reached a "
-        "cross-validated AUC of 0.67 (95% CI 0.58–0.76), comparable to Model 1's score-level AUC. "
-        "Notably, lasso did not retain focal deficit at the chosen penalty, and the AUC ceiling on the "
-        "full 25-feature ensemble dropped to 0.55–0.59 — a clear overfitting signature at this event "
-        "count. The practical implication is that a clinician using the paper score is not at a "
-        "meaningful information disadvantage compared with either a black-box predictor or a "
-        "data-driven feature-selection pipeline.")
+        "We compared the primary integer score against four flexible models trained on the same six "
+        "predictors: regularized logistic regression, elastic-net logistic regression, random forest, "
+        "gradient boosting, and XGBoost. Each model was evaluated by 5×10 stratified repeated "
+        "cross-validation; AUC point estimates and 1000-bootstrap 95% confidence intervals are shown "
+        "in Table 10 and Figures 9–10. None of the flexible models exceeded the integer-score AUC; "
+        "random forest, gradient boosting, and XGBoost all landed in the 0.57–0.58 range and the "
+        "regularized logistic models near 0.65. This is the well-recognized consequence of an "
+        "events-per-variable ratio in the single digits²⁹ — flexibility costs more than it gains.")
+    add_p(doc,
+        "Sensitivity Model 4 — the data-driven counterpart — was derived by passing the full "
+        "candidate-variable matrix (25 predictors after near-zero-variance and collinearity filtering) "
+        "through L1-penalized logistic regression with 5×10 stratified cross-validation across a path "
+        "of 30 penalties, capping non-zero coefficients at the events-per-variable maximum of 7. The "
+        "natural-balance lasso selected age, platelets, hypertension, antiplatelet therapy, and SDH "
+        "volume ≥100 mL. The unpenalized refit on those 5 variables reached a cross-validated AUC of "
+        "0.66 (95% CI 0.56–0.75). To probe whether the modest discrimination reflected the underlying "
+        "class imbalance (16.8% events), we re-ran the lasso with class_weight='balanced' (4 features, "
+        "CV-AUC 0.65) and with SMOTE applied within each training fold (5 features, CV-AUC 0.67). All "
+        "three modes produced overlapping 95% intervals, indicating that the AUC ceiling is set by the "
+        "limited event count, not by the imbalance per se. Lasso did not retain focal deficit at any "
+        "of the chosen penalties, supporting its exclusion from the primary scores. The practical "
+        "implication is that a clinician using the primary integer score is not at a meaningful "
+        "information disadvantage compared with either a black-box predictor or a data-driven "
+        "feature-selection pipeline with imbalance corrections.")
     ml = pd.read_csv(V2 / "ml_comparison.csv")
     ml_f = pd.DataFrame()
     ml_f["Model"] = ml["model"]
@@ -570,19 +577,20 @@ def main():
     doc.add_page_break()
     add_h(doc, "Discussion", level=1)
     add_p(doc,
-        "We built and internally validated three pre-procedural integer scores and one data-driven "
-        "logistic model for the rescue-surgery endpoint after MMA embolization for chronic subdural "
-        "hematoma. The full 8-point Model 1 discriminates rescue with an optimism-corrected AUC of "
-        "0.69 and separates a low-risk arm (10.4% rescue rate) from a high-risk arm (38.0%) at the "
-        "cutoff of ≥5, a 3.7-fold difference directly relevant to post-procedural surveillance. "
-        "Model 3 reaches a comparable AUC of 0.68 with five variables. The simplified 5-point Model 2 "
-        "lands at AUC 0.62 and is useful when laboratory or procedural data are not yet available at "
-        "triage. The data-driven Model 4 — derived independently from the integer scores by lasso "
-        "feature selection across the full candidate-variable space — reached an essentially "
-        "identical 5×10 cross-validated AUC of 0.67 (95% CI 0.58–0.76), confirming the integer scores "
-        "are not sacrificing discrimination for parsimony. All three integer scores are calibrated "
-        "across deciles of predicted probability, so the absolute risk numbers can be used directly, "
-        "not just as a ranking.")
+        "We built and internally validated two pre-procedural knowledge-driven integer scores as the "
+        "primary models, with three sensitivity models supporting them, for the rescue-surgery "
+        "endpoint after MMA embolization for chronic subdural hematoma. The primary 7-point Model 1 "
+        "discriminates rescue with an optimism-corrected AUC of 0.70 and separates a low-risk arm "
+        "(8.6% rescue rate) from a high-risk arm (36.5%) at the cutoff of ≥4, a 4.2-fold difference "
+        "directly relevant to post-procedural surveillance. The simplified 4-point Model 2 lands at "
+        "AUC 0.64 and is useful when laboratory or procedural data are not yet available at triage. "
+        "Among sensitivity analyses, the co-author-derived Model 3 reaches a comparable AUC of 0.70 "
+        "with four variables; the data-driven Model 4 — derived independently from the integer scores "
+        "by lasso feature selection across the full candidate-variable space, with three "
+        "class-imbalance modes evaluated — reached an essentially identical 5×10 cross-validated AUC "
+        "of 0.66 (95% CI 0.56–0.75), confirming the integer scores are not sacrificing discrimination "
+        "for parsimony. Both primary scores are calibrated across deciles of predicted probability, "
+        "so the absolute risk numbers can be used directly, not just as a ranking.")
 
     add_p(doc,
         "The volume effect we observed — a doubling of rescue risk for SDH ≥100 mL at baseline — is "
@@ -600,19 +608,17 @@ def main():
         "a coding error in the focal-deficit variable: prevalence had been recorded as 26.2%, "
         "substantially below the 40–70% reported in major MMA series.⁵,¹⁴,¹⁸ The corrected coding "
         "raised prevalence to 59.8%, fully within the published range, and was applied uniformly "
-        "across the cohort before final model fitting. After the correction, focal deficit was "
-        "retained in Models 1, 2, and 3 for clinical face validity; however, the variable was "
-        "non-significant in the multivariable analysis (Model 1 adjusted OR 0.80, 95% CI 0.36–1.78; "
-        "P = 0.58), the Akaike information criterion was 1.7 units higher with the variable than "
-        "without, and the data-driven Model 4 did not retain it at the lasso-selected penalty. "
+        "across the cohort. After the correction, focal deficit was non-significant on univariable "
+        "analysis (OR 1.07, 95% CI 0.51–2.22; P = 0.86) and in the multivariable Model 1 (adjusted "
+        "OR 0.80, 95% CI 0.36–1.78; P = 0.58); the Akaike information criterion was 1.7 units higher "
+        "with the variable than without, and the lasso-based Model 4 did not retain it. "
         "Cross-validated AUC differed by less than 0.02 between focal-deficit-included and "
         "focal-deficit-removed scores. The likeliest explanation is that focal deficit, while "
         "clinically meaningful at the bedside, is heavily collinear with SDH volume, midline shift, "
-        "and pre-procedure mRS in this cohort and contributes little independent information. We "
-        "kept the variable in the integer scores because dropping it would force the user of the "
-        "calculator to ignore a clinical sign they will inevitably observe, and because external "
-        "validation in a multicenter cohort with consistent indication criteria may yet recover an "
-        "independent signal.")
+        "and pre-procedure mRS in this cohort and contributes little independent information. The "
+        "variable was therefore excluded from the primary scores for parsimony; focal-included "
+        "variants of Models 1–3 are reported as a sensitivity sub-analysis to allow direct "
+        "comparison.")
 
     add_p(doc,
         "The score builds on, but does not replicate, the existing cSDH grading systems. Markwalder's "
@@ -645,11 +651,12 @@ def main():
         "Several limitations apply. The study is single-center and retrospective, with the usual caveats "
         "around temporal bleed-through of practice patterns, embolic-agent choice, and post-procedural "
         "surveillance protocols. The event count of 36 limits the precision of any individual "
-        "coefficient estimate, although the optimism-corrected AUC of 0.69 for Model 1 suggests the "
-        "integer-score representation is robust. The focal-deficit data correction described in Methods "
-        "underscores the importance of structured data-quality review for retrospective studies; the "
-        "corrected variable is non-significant in the multivariable models but kept for clinical face "
-        "validity. Rescue surgery was ascertained at the last available clinical follow-up rather than "
+        "coefficient estimate, although the optimism-corrected AUC of 0.70 for the primary Model 1 "
+        "suggests the integer-score representation is robust. The focal-deficit data correction "
+        "described in Methods underscores the importance of structured data-quality review for "
+        "retrospective studies; the corrected variable is non-significant in the multivariable models "
+        "and was excluded from primary scores, with focal-included variants kept as a sensitivity "
+        "sub-analysis. Rescue surgery was ascertained at the last available clinical follow-up rather than "
         "at a fixed time horizon, which introduces variability in censoring; this is the same "
         "limitation that affects most published MMA cohorts and is the motivation for the "
         "protocol-driven endpoints in the active randomized trials.¹⁷,²⁶,²⁷ Fifteen percent of patients "
@@ -675,13 +682,14 @@ def main():
     # ---- Conclusion ----
     add_h(doc, "Conclusion", level=1)
     add_p(doc,
-        "A simple 8-point pre-procedural score discriminates rescue surgery after MMA embolization for "
-        "chronic subdural hematoma with an optimism-corrected AUC of 0.69. A score of ≥5 identifies a "
-        "patient cohort with a 3.7-fold higher rescue rate than the rest of the population. SDH volume "
-        "≥100 mL and age are the two strongest individual contributors. A parallel data-driven Model 4 "
-        "reaches the same cross-validated AUC as the integer scores, confirming that simplicity is not "
-        "costing accuracy at this event count. External validation is required before clinical "
-        "adoption.")
+        "A simple 7-point pre-procedural knowledge-driven score discriminates rescue surgery after MMA "
+        "embolization for chronic subdural hematoma with an optimism-corrected AUC of 0.70. A score of "
+        "≥4 identifies a patient cohort with a 4.2-fold higher rescue rate than the rest of the "
+        "population. SDH volume ≥100 mL and age are the two strongest individual contributors. A "
+        "data-driven sensitivity Model 4 (lasso, with three class-imbalance modes) reaches an "
+        "essentially identical cross-validated AUC, confirming that the parsimonious knowledge-driven "
+        "form is not sacrificing accuracy at this event count. External validation is required before "
+        "clinical adoption.")
 
     # ---- Statements ----
     add_h(doc, "Funding", level=3)

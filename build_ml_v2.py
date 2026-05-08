@@ -67,7 +67,7 @@ def boot_auc_ci(y, proba, n_boot=N_BOOT, seed=RNG):
 
 def main():
     sc = pd.read_csv(V2 / "scored_cohort_v2.csv")
-    feats = ["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit",
+    feats = ["age_pts", "sdh_vol_ge100", "anticoag",
              "plt_lt150", "antiplatelet", "ant_post"]
     X = sc[feats].values.astype(float)
     y = sc["y"].values.astype(int)

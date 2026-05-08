@@ -76,10 +76,10 @@ def main():
         "age_pts": "Age (per category)",
         "sdh_vol_ge100": "SDH volume ≥100 mL",
         "anticoag": "Anticoagulation",
-        "focal_deficit": "Focal deficit at presentation",
         "plt_lt150": "Platelets <150 ×10⁹/L",
         "antiplatelet": "Antiplatelet therapy",
         "ant_post": "Anterior + posterior embolization",
+        "focal_deficit": "Focal deficit at presentation",
     }
     m1_co_n = m1_co[m1_co["variable"] != "const"].copy()
     m2_co_n = m2_co[m2_co["variable"] != "const"].copy()
@@ -105,14 +105,13 @@ def main():
         out["P value"] = df["p"].apply(lambda x: "<0.001" if x < 0.001 else f"{x:.3f}")
         return out
 
-    # Score components definitions (focal deficit re-included after data correction)
+    # PRIMARY score components (focal_deficit kept as sensitivity variant)
     score_def = pd.DataFrame([
         ("Age <65 years", 0, "Yes", "Yes"),
         ("Age 65–80 years", 1, "Yes", "Yes"),
         ("Age >80 years", 2, "Yes", "Yes"),
         ("SDH volume ≥100 mL", 1, "Yes", "Yes"),
         ("Anticoagulation", 1, "Yes", "Yes"),
-        ("Focal deficit at presentation", 1, "Yes", "Yes"),
         ("Platelets <150 ×10⁹/L", 1, "Yes", "No"),
         ("Antiplatelet therapy", 1, "Yes", "No"),
         ("Anterior + posterior embolization", 1, "Yes", "No"),
@@ -143,9 +142,9 @@ def main():
         ("Hosmer–Lemeshow P",
          round(s["m1_hl"]["p"], 3),
          round(s["m2_hl"]["p"], 3)),
-        ("Max possible score", 8, 5),
-        ("Recommended cutoff", "≥5", "≥3"),
-    ], columns=["Metric", "Model 1 (full, 8-pt)", "Model 2 (simple, 5-pt)"])
+        ("Max possible score", 7, 4),
+        ("Recommended cutoff", "≥4", "≥3"),
+    ], columns=["Metric", "Model 1 (full, 7-pt)", "Model 2 (simple, 4-pt)"])
 
     # Build workbook
     wb = Workbook()

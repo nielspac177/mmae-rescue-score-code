@@ -30,12 +30,11 @@ def main():
     intercept = float(pd.read_csv(V2 / "m1_logit_coefs.csv")
                       .query('variable == "const"')["coef"].values[0])
 
-    # Predictor levels
+    # Predictor levels (primary M1 — no focal_deficit)
     items = [
         ("Age category",       "age_pts",         [0, 1, 2],  ["<65", "65–80", ">80"]),
         ("SDH volume ≥100 mL", "sdh_vol_ge100",   [0, 1],     ["No", "Yes"]),
         ("Anticoagulation",    "anticoag",        [0, 1],     ["No", "Yes"]),
-        ("Focal deficit",      "focal_deficit",   [0, 1],     ["No", "Yes"]),
         ("Platelets <150",     "plt_lt150",       [0, 1],     ["No", "Yes"]),
         ("Antiplatelet therapy", "antiplatelet",  [0, 1],     ["No", "Yes"]),
         ("Anterior + posterior", "ant_post",      [0, 1],     ["No", "Yes"]),

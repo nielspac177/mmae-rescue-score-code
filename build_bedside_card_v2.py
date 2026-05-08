@@ -56,7 +56,7 @@ def main():
                  "MMA EMBOLIZATION  —  RESCUE SURGERY RISK SCORE")
     c.setFont(FONT, 9.5)
     c.drawString(0.5 * inch, H - 0.65 * inch,
-                 "Pre-procedural bedside card  ·  v3  ·  Single-center derivation, n=214")
+                 "Pre-procedural bedside card  ·  v4  ·  Single-center derivation, n=214")
 
     # ---- Warning ribbon ----
     c.setFillColor(WARN_BG)
@@ -78,7 +78,7 @@ def main():
     y = H - 1.55 * inch
     c.setFillColor(NAVY)
     c.setFont(FONT_B, 11.5)
-    c.drawString(0.5 * inch, y, "MODEL 1  (full · max 8 pts)")
+    c.drawString(0.5 * inch, y, "MODEL 1  (full · max 7 pts · primary)")
     c.setStrokeColor(NAVY)
     c.setLineWidth(0.7)
     c.line(0.5 * inch, y - 0.05 * inch, 4.6 * inch, y - 0.05 * inch)
@@ -87,7 +87,6 @@ def main():
         ("Age   <65 / 65–80 / >80",            "0 / 1 / 2"),
         ("SDH volume ≥ 100 mL",                "+1"),
         ("Anticoagulation",                    "+1"),
-        ("Focal deficit at presentation",      "+1"),
         ("Platelets <150 ×10⁹/L",              "+1"),
         ("Antiplatelet therapy",               "+1"),
         ("Anterior + posterior embolization",  "+1"),
@@ -117,19 +116,18 @@ def main():
 
     rows = [
         ("Score", "n",  "Failures", "Rate"),
-        ("0",     "6",  "0",        "0.0%"),
-        ("1",     "20", "3",        "15.0%"),
-        ("2",     "31", "3",        "9.7%"),
-        ("3",     "53", "3",        "5.7%"),
-        ("4",     "54", "8",        "14.8%"),
-        ("5",     "39", "16",       "41.0%"),
-        ("6",     "9",  "2",        "22.2%"),
-        ("≥7",    "2",  "1",        "50.0%"),
+        ("0",     "8",  "0",        "0.0%"),
+        ("1",     "29", "4",        "13.8%"),
+        ("2",     "50", "3",        "6.0%"),
+        ("3",     "64", "6",        "9.4%"),
+        ("4",     "47", "18",       "38.3%"),
+        ("5",     "13", "3",        "23.1%"),
+        ("≥6",    "3",  "2",        "66.7%"),
     ]
     col_x = [0.55 * inch, 1.50 * inch, 2.45 * inch, 3.50 * inch]
     row_h = 0.21 * inch
     for i, row in enumerate(rows):
-        is_high = i >= 6  # scores 5, 6, ≥7 are high (cutoff ≥ 5)
+        is_high = i >= 5  # scores 4, 5, ≥6 are high (cutoff ≥ 4)
         if i == 0:
             c.setFillColor(NAVY)
             c.rect(0.50 * inch, y - 0.04 * inch, 4.10 * inch, row_h,
@@ -166,11 +164,11 @@ def main():
     c.line(rx, ry - 0.05 * inch, rx + rw, ry - 0.05 * inch)
 
     actions = [
-        (GREEN, "Score 0–2  ·  Low",
+        (GREEN, "Score 0–1  ·  Low",
          "Standard post-procedure care.\nRoutine clinical follow-up."),
-        (GOLD,  "Score 3–4  ·  Intermediate",
+        (GOLD,  "Score 2–3  ·  Intermediate",
          "Standard surveillance + interval\nimaging at 2–4 weeks."),
-        (RED,   "Score ≥ 5  ·  High",
+        (RED,   "Score ≥ 4  ·  High",
          "Tighter surveillance. Early CT\n(24–72 h). Low threshold for rescue."),
     ]
     ay = ry - 0.40 * inch
@@ -200,9 +198,9 @@ def main():
     ry2 -= 0.30 * inch
 
     perf_lines = [
-        ("AUC (Model 1)",     "0.69 (corrected)"),
-        ("Cutoff ≥ 5",        "Sens 53%  ·  Spec 83%"),
-        ("Low vs high",       "10.4% vs 38.0% rescue"),
+        ("AUC (Model 1)",     "0.70 (corrected)"),
+        ("Cutoff ≥ 4",        "Sens 64%  ·  Spec 78%"),
+        ("Low vs high",       "8.6% vs 36.5% rescue"),
         ("Calibration",       "Hosmer–Lemeshow OK"),
     ]
     c.setFont(FONT, 10)
@@ -234,12 +232,12 @@ def main():
     c.setFont(FONT, 8.5)
     c.drawString(0.5 * inch, 0.55 * inch,
         "Pre-procedural use only  ·  not for acute SDH triage  ·  external validation pending  ·  TRIPOD-compliant")
-    c.drawRightString(W - 0.5 * inch, 0.55 * inch, "v3")
+    c.drawRightString(W - 0.5 * inch, 0.55 * inch, "v4")
 
     c.setFillColor(GREY)
     c.setFont(FONT_I, 8.5)
     c.drawString(0.5 * inch, 0.25 * inch,
-        "Score complements clinical judgment. Not a substitute. See live calculator for Model 2, Model 3, and Model 4 (data-driven).")
+        "Primary score (focal-deficit-removed knowledge-driven). See live calculator for Model 2 plus sensitivity Models 3, 4, and focal-included variants.")
 
     c.save()
     print(f"Wrote {OUT.relative_to(HERE)} ({OUT.stat().st_size/1024:.0f} KB)")

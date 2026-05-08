@@ -1,20 +1,24 @@
 """
-MMAE rescue prediction — Score v2 (Model 1 full / Model 2 simplified).
+MMAE rescue prediction — Score v2.
 
-Model 1 (max 8):
+PRIMARY (knowledge-driven, focal_deficit excluded for face-validity reasons
+documented in Methods):
+
+Model 1 (max 7):
   Age:               <65 → 0,  65–80 → 1,  >80 → 2
   SDH volume ≥ 100:  +1
   Anticoagulation:   +1
-  Focal deficit:     +1
   Platelets < 150:   +1
   Antiplatelet:      +1
   Anterior+posterior embolization: +1
 
-Model 2 (max 5, simplified):
+Model 2 (max 4, simplified):
   Age (0/1/2)
   SDH volume ≥ 100
   Anticoagulation
-  Focal deficit
+
+SENSITIVITY (focal_deficit included after data-coding correction; written to
+v2/m1_focal_*.csv and v2/m2_focal_*.csv).
 """
 from __future__ import annotations
 import json
@@ -73,14 +77,18 @@ def load_and_score(csv_path: Path) -> pd.DataFrame:
     # Anterior + posterior embolization
     out["ant_post"] = (df["branches"].astype(str).str.strip() == "Anterior + posterior").astype(int)
 
-    # focal_deficit re-included after data correction (prevalence 59.8%
-    # now matches published MMA-embolization series; previous 26.2% was
-    # a coding error).
-    m1_cols = ["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit",
+    # PRIMARY: knowledge-driven scores without focal_deficit.
+    m1_cols = ["age_pts", "sdh_vol_ge100", "anticoag",
                "plt_lt150", "antiplatelet", "ant_post"]
-    m2_cols = ["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit"]
+    m2_cols = ["age_pts", "sdh_vol_ge100", "anticoag"]
     out["score_m1"] = out[m1_cols].sum(axis=1).astype(int)
     out["score_m2"] = out[m2_cols].sum(axis=1).astype(int)
+
+    # SENSITIVITY: focal_deficit re-included (data-correction sub-analysis).
+    out["score_m1_focal"] = (out[m1_cols].sum(axis=1)
+                              + out["focal_deficit"]).astype(int)
+    out["score_m2_focal"] = (out[m2_cols].sum(axis=1)
+                              + out["focal_deficit"]).astype(int)
 
     # Carry raw fields used downstream
     out["age"] = age
@@ -218,10 +226,10 @@ def main():
     print(f"Model 1 score AUC: apparent={results['m1_score_auc']['apparent']:.3f} corrected={results['m1_score_auc']['corrected']:.3f}")
     print(f"Model 2 score AUC: apparent={results['m2_score_auc']['apparent']:.3f} corrected={results['m2_score_auc']['corrected']:.3f}")
 
-    # Multivariable logistic — use the per-variable encoding
-    m1_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit",
+    # PRIMARY multivariable logistic
+    m1_X = sc[["age_pts", "sdh_vol_ge100", "anticoag",
                "plt_lt150", "antiplatelet", "ant_post"]]
-    m2_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit"]]
+    m2_X = sc[["age_pts", "sdh_vol_ge100", "anticoag"]]
 
     m1_logit = logistic_fit_eval(m1_X, sc["y"].values)
     m2_logit = logistic_fit_eval(m2_X, sc["y"].values)
@@ -234,11 +242,31 @@ def main():
     m1_logit["coefs"].to_csv(out / "m1_logit_coefs.csv", index=False)
     m2_logit["coefs"].to_csv(out / "m2_logit_coefs.csv", index=False)
 
-    # Score → failure tables
+    # SENSITIVITY (focal_deficit re-included)
+    m1f_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit",
+                "plt_lt150", "antiplatelet", "ant_post"]]
+    m2f_X = sc[["age_pts", "sdh_vol_ge100", "anticoag", "focal_deficit"]]
+    m1f_logit = logistic_fit_eval(m1f_X, sc["y"].values)
+    m2f_logit = logistic_fit_eval(m2f_X, sc["y"].values)
+    results["m1_focal_score_auc"] = auc_and_optimism(sc["score_m1_focal"].values, sc["y"].values)
+    results["m2_focal_score_auc"] = auc_and_optimism(sc["score_m2_focal"].values, sc["y"].values)
+    results["m1_focal_logit"] = {k: v for k, v in m1f_logit.items() if k not in ("coefs", "pred")}
+    results["m2_focal_logit"] = {k: v for k, v in m2f_logit.items() if k not in ("coefs", "pred")}
+    m1f_logit["coefs"].to_csv(out / "m1_focal_logit_coefs.csv", index=False)
+    m2f_logit["coefs"].to_csv(out / "m2_focal_logit_coefs.csv", index=False)
+    print(f"[SENS] Model 1+focal score AUC: apparent={results['m1_focal_score_auc']['apparent']:.3f} corrected={results['m1_focal_score_auc']['corrected']:.3f}")
+    print(f"[SENS] Model 2+focal score AUC: apparent={results['m2_focal_score_auc']['apparent']:.3f} corrected={results['m2_focal_score_auc']['corrected']:.3f}")
+
+    # Score → failure tables (primary)
     m1_tab = score_risk_table(sc["score_m1"].values, sc["y"].values)
     m2_tab = score_risk_table(sc["score_m2"].values, sc["y"].values)
     m1_tab.to_csv(out / "m1_risk_by_score.csv", index=False)
     m2_tab.to_csv(out / "m2_risk_by_score.csv", index=False)
+    # Score → failure tables (sensitivity)
+    score_risk_table(sc["score_m1_focal"].values, sc["y"].values).to_csv(
+        out / "m1_focal_risk_by_score.csv", index=False)
+    score_risk_table(sc["score_m2_focal"].values, sc["y"].values).to_csv(
+        out / "m2_focal_risk_by_score.csv", index=False)
 
     # Calibration (logit predictions)
     results["m1_hl"] = hl_test(m1_logit["pred"], sc["y"].values, q=8)
@@ -247,6 +275,8 @@ def main():
     # Save predictions
     sc["pred_m1"] = m1_logit["pred"]
     sc["pred_m2"] = m2_logit["pred"]
+    sc["pred_m1_focal"] = m1f_logit["pred"]
+    sc["pred_m2_focal"] = m2f_logit["pred"]
     sc.to_csv(out / "scored_cohort_v2.csv", index=False)
 
     # Univariate ORs (for forest plot)
