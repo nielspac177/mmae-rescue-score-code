@@ -123,13 +123,16 @@ def main():
     df = pd.DataFrame(results)
     df.to_csv(V2 / "ml_comparison.csv", index=False)
 
-    # ROC overlay
+    # ROC overlay — distinguish primary (solid) from ML (dashed/dotted)
     palette = [C["blue"], C["gold"], C["teal"], C["green"], C["purple"], C["red"]]
+    linestyles = ["-", "--", "--", ":", ":", "-."]
+    linewidths = [3.0, 1.8, 1.8, 1.8, 1.8, 1.8]
     fig, ax = plt.subplots(figsize=(6.0, 6.0))
-    for (name, proba), col in zip(proba_dict.items(), palette):
+    for (name, proba), col, ls, lw in zip(proba_dict.items(), palette,
+                                            linestyles, linewidths):
         fpr, tpr, _ = roc_curve(y, proba)
         auc = roc_auc_score(y, proba)
-        ax.plot(fpr, tpr, lw=2.2, color=col, alpha=0.92,
+        ax.plot(fpr, tpr, lw=lw, color=col, alpha=0.92, linestyle=ls,
                 label=f"{name} ({auc:.3f})")
     ax.plot([0, 1], [0, 1], "--", color=C["grey"], lw=1.0, alpha=0.7)
     ax.set_xlabel("1 − Specificity")

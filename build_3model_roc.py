@@ -30,24 +30,24 @@ def main():
     y = sc["y"].values
 
     fig, ax = plt.subplots(figsize=(5.6, 5.6))
-    for name, col, color in [
-        ("Model 1 (full, 8 pts)",   "score_m1", C["blue"]),
-        ("Model 3 (SOCR, 6 pts)",   "score_m3", C["purple"]),
-        ("Model 2 (simple, 5 pts)", "score_m2", C["gold"]),
+    for name, col, color, ls in [
+        ("Model 1 (primary, max 7)",  "score_m1", C["blue"],   "-"),
+        ("Model 2 (primary, max 4)",  "score_m2", C["gold"],   "-"),
+        ("Model 3 (sensitivity, max 5)", "score_m3", C["purple"], "--"),
     ]:
         s = sc[col].values.astype(float)
         fpr, tpr, _ = roc_curve(y, s)
         auc = roc_auc_score(y, s)
-        ax.plot(fpr, tpr, lw=2.4, color=color,
+        ax.plot(fpr, tpr, lw=2.4, color=color, linestyle=ls,
                 label=f"{name} — AUC {auc:.3f}")
     ax.plot([0, 1], [0, 1], "--", color=C["grey"], lw=1.2, alpha=0.7)
     ax.set_xlabel("1 − Specificity")
     ax.set_ylabel("Sensitivity")
-    ax.set_title("ROC — three integer scoring models")
     ax.set_xlim(-0.01, 1.01)
     ax.set_ylim(-0.01, 1.01)
     ax.set_aspect("equal")
-    ax.legend(loc="lower right", fontsize=9.2)
+    ax.legend(loc="lower right", fontsize=9.0, title="Discrimination",
+              title_fontsize=9.5)
     ax.grid(alpha=0.18)
     fig.savefig(V2 / "fig1_roc.png", dpi=600, bbox_inches="tight",
                 facecolor="white")

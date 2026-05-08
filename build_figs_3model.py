@@ -104,6 +104,8 @@ def fig2_score_risk():
         (axes[1], m3, C["purple"], "Model 3 (max 5)", 5),
         (axes[2], m2, C["gold"],   "Model 2 — simple (max 4)", 4),
     ]
+    # Standardise y-axis so the three panels compare directly
+    panel_ymax = 80
     for ax, tab, color, title, mx in cfg:
         x = tab["score"].values
         n = tab["n"].values
@@ -114,13 +116,13 @@ def fig2_score_risk():
                edgecolor="white", linewidth=1.4, zorder=2)
         ax.errorbar(x, rate, yerr=[rate - lo, hi - rate],
                     fmt="none", ecolor="#444", capsize=3, lw=1.0, zorder=3)
-        ymax = max(hi.max() + 8, 80)
         for xi, ni, ri in zip(x, n, rate):
-            ax.text(xi, ri + 1.5, f"n={ni}", ha="center", va="bottom",
+            ax.text(xi, min(ri + 1.5, panel_ymax - 3),
+                    f"n={ni}", ha="center", va="bottom",
                     fontsize=8.5, color="#333")
         ax.set_xticks(np.arange(0, mx + 1))
         ax.set_xlim(-0.6, mx + 0.6)
-        ax.set_ylim(0, ymax)
+        ax.set_ylim(0, panel_ymax)
         ax.set_xlabel("Total score")
         ax.set_ylabel("Observed rescue rate (%)")
         ax.set_title(title)
@@ -137,11 +139,11 @@ def fig3_calibration():
     y = sc["y"].values
     fig, ax = plt.subplots(figsize=(5.6, 5.6))
     cfg = [
-        ("Model 1 (full)",   "pred_m1", C["blue"]),
-        ("Model 3",          "pred_m3", C["purple"]),
-        ("Model 2 (simple)", "pred_m2", C["gold"]),
+        ("Model 1 (primary)", "pred_m1", C["blue"],   "o", "-"),
+        ("Model 2 (primary)", "pred_m2", C["gold"],   "s", "-"),
+        ("Model 3 (sens.)",   "pred_m3", C["purple"], "^", "--"),
     ]
-    for name, col, color in cfg:
+    for name, col, color, marker, ls in cfg:
         if col not in sc.columns:
             continue
         p = sc[col].values
@@ -157,8 +159,8 @@ def fig3_calibration():
             means_p.append(p[sel].mean())
             means_y.append(y[sel].mean())
             ses.append(np.sqrt(y[sel].mean() * (1 - y[sel].mean()) / sel.sum()))
-        ax.plot(means_p, means_y, "o-", color=color, lw=2.0, ms=7,
-                label=name, zorder=3)
+        ax.plot(means_p, means_y, color=color, lw=2.0, ms=7,
+                marker=marker, linestyle=ls, label=name, zorder=3)
         ax.errorbar(means_p, means_y, yerr=ses, fmt="none",
                     ecolor=color, alpha=0.5, capsize=2.5, lw=0.9)
     ax.plot([0, 1], [0, 1], "--", color=C["grey"], lw=1.1, alpha=0.7,
@@ -270,16 +272,24 @@ def fig10_dca():
         return tp / n - (fp / n) * (t / (1 - t))
 
     thresholds = np.linspace(0.02, 0.55, 60)
-    nb_m1   = [net_benefit(sc["pred_m1"].values, t) for t in thresholds]
-    nb_m3   = [net_benefit(sc["pred_m3"].values, t) for t in thresholds]
-    nb_m2   = [net_benefit(sc["pred_m2"].values, t) for t in thresholds]
-    nb_all  = [net_benefit(np.ones(len(y)),       t) for t in thresholds]
-    nb_none = [0 for _ in thresholds]
+    nb_m1   = np.array([net_benefit(sc["pred_m1"].values, t) for t in thresholds])
+    nb_m3   = np.array([net_benefit(sc["pred_m3"].values, t) for t in thresholds])
+    nb_m2   = np.array([net_benefit(sc["pred_m2"].values, t) for t in thresholds])
+    nb_all  = np.array([net_benefit(np.ones(len(y)),       t) for t in thresholds])
+    nb_none = np.zeros_like(thresholds)
+
+    # 5-pt moving average to smooth the integer-score step jitter
+    def smooth(arr, k=5):
+        kern = np.ones(k) / k
+        return np.convolve(arr, kern, mode="same")
 
     fig, ax = plt.subplots(figsize=(7.0, 5.5))
-    ax.plot(thresholds, nb_m1, color=C["blue"],   lw=2.4, label="Model 1 (full)")
-    ax.plot(thresholds, nb_m3, color=C["purple"], lw=2.4, label="Model 3")
-    ax.plot(thresholds, nb_m2, color=C["gold"],   lw=2.4, label="Model 2 (simple)")
+    ax.plot(thresholds, smooth(nb_m1), color=C["blue"], lw=2.6,
+            label="Model 1 (primary)")
+    ax.plot(thresholds, smooth(nb_m2), color=C["gold"], lw=2.6,
+            label="Model 2 (primary)")
+    ax.plot(thresholds, smooth(nb_m3), color=C["purple"], lw=2.0, ls="--",
+            label="Model 3 (sensitivity)")
     ax.plot(thresholds, nb_all,  color=C["red"],  lw=1.4, ls="--",
             label="Treat all", alpha=0.85)
     ax.plot(thresholds, nb_none, color=C["grey"], lw=1.4, ls=":",
